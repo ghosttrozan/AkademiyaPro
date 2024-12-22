@@ -22,6 +22,27 @@ const schoolSchema = new mongoose.Schema({
     required: true,
     unique: true, // Ensures that there's only one principal per school
   },
+  classes: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Class'}
+  ],
+  teachers: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' }
+  ],
+  students: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Student' }
+   ],
+  academicYears: {
+    type: [String],
+    required: true,
+  },
+  schoolEmail: {
+    type: String,
+    required: true,
+    unique: true, // Ensures that there's only one school with a unique email
+  },
+  schoolWebsite : {
+    type : String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken'); 
 
 // Function to generate JWT token
-function generateJWT(payload) {
+async function generateJWT(payload) {
   try {
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+    const token = await jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
     return token;
   } catch (error) {
     console.log("Error generating JWT:", error);
@@ -12,9 +12,9 @@ function generateJWT(payload) {
 }
 
 // Function to verify JWT token
-function verifyJWT(token) {
+async function verifyJWT(token) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET); 
     return decoded;
   } catch (error) {
     console.log("Error in verifyJWT:", error);
@@ -23,9 +23,9 @@ function verifyJWT(token) {
 }
 
 // Function to decode JWT token
-function decodeJWT(token) {
+async function decodeJWT(token) {
   try {
-    const decoded = jwt.decode(token); 
+    const decoded = await jwt.decode(token); 
     return decoded;
   } catch (error) {
     console.log("Error in decodeJWT:", error);

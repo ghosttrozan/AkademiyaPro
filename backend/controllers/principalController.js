@@ -1,6 +1,6 @@
 const principal = require('../models/principalSchema')
 const bcrypt = require('bcrypt')
-const {generateJWT,verifyJWT,decodeJWT} = require('../utils/authorizationJWT')
+const {generateJWT} = require('../utils/authorizationJWT')
 async function registerPrincipal(req , res){
 
   try {
@@ -124,8 +124,6 @@ async function loginPrincipal(req , res){
       contactNumber : Principal.contactNumber,
       id : Principal._id,
     })
-
-    console.log(Principal)
 
     return res.status(200).json({
       success : true,

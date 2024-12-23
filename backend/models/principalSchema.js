@@ -15,6 +15,11 @@ const principleSchema = mongoose.Schema({
     required: true,
     select:false,
   },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female'],
+    required: true
+  },
   contactNumber: {
     type: String,
     required: true,

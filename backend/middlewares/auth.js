@@ -1,7 +1,6 @@
 const {verifyJWT} = require('../utils/authorizationJWT')
 
 const verifyPrincipal = async (req , res , next) => {
-
   let token = req?.headers?.authorization?.replace("Bearer " , "")
 
   if (!token) {
@@ -27,4 +26,30 @@ const verifyPrincipal = async (req , res , next) => {
 
 }
 
-module.exports = verifyPrincipal
+const verifyTeacher = async (req , res , next) => {
+  let token = req?.headers?.authorization?.replace("Bearer " , "")
+
+  if (!token) {
+    return res.status(400).json({
+      success : false,
+      message : "Please Sign in"
+    })
+  }
+  // Verify the token and get the principal ID. If invalid, return an error response.
+  try {
+    let teacher = await verifyJWT(token)
+    if (!teacher) {
+      return res.status(400).json({
+        success : false,
+        message : "Invalid Token"
+      })
+    }
+    req.teacher = teacher.id
+    next()
+  } catch (error) {
+    return null
+  }
+
+}
+
+module.exports = {verifyPrincipal , verifyTeacher}

@@ -16,7 +16,7 @@ async function registerPrincipal(req , res){
       gender
     } = req.body 
 
-    if (!name,!gender,!email,!password,!contactNumber){
+    if (!name||!gender||!email||!password||!contactNumber){
       return res.status(400).json({
         success : false,
         msg : "Please provide all required fields"
@@ -156,7 +156,8 @@ async function loginPrincipal(req , res){
 async function registerNewTeacher(req , res){
   
   try {
-    const Principal = req.principal
+    
+  const Principal = req.principal
 
   const {school} = await principal.findById(Principal)
 
@@ -167,9 +168,9 @@ async function registerNewTeacher(req , res){
     })
   }
 
-  const { name , email , contactNumber , subjects , designation , salary , address , gender , password} = req.body
+  const { firstName , lastName , email , contactNumber , classAssigned , hireDate , subjects , designation , salary , address , gender , password} = req.body
 
-  if(!name , !contactNumber , !password , !subjects , !designation , !salary , !address , !gender){
+  if(!firstName || !contactNumber || !password || !subjects || !designation || !salary || !address || !gender){
     return res.status(400).json({
       success : false,
       msg : "Please provide all required fields"
@@ -189,7 +190,10 @@ async function registerNewTeacher(req , res){
 
   const newTeacher = await teacher.create({
     school,
-    name,
+    fullName : {
+      firstName ,
+      lastName
+    },
     email,
     contactNumber,
     password : hashedPassword,
@@ -197,7 +201,9 @@ async function registerNewTeacher(req , res){
     designation,
     salary,
     address,
-    gender
+    gender,
+    classAssigned ,
+    hireDate
   })
 
   const token = await generateJWT({

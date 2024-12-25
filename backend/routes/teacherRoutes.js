@@ -5,6 +5,7 @@ const route = express.Router();
 
 route.post('/login' , loginTeacher)
 
-route.get('/profile', verifyTeacher, getTeachersById);
+route.get('/profile', verifyTeacher, getTeachersById)
+
 
 module.exports = route;

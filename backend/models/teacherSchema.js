@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
 const teacherSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
+    fullName: {
+        firstName : {
+            type: String,
+            required: true,
+            trim: true
+        },
+        lastName : {
+            type: String,
+            trim: true
+        }
     },
     email: {
         type: String,
@@ -18,12 +24,6 @@ const teacherSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'School',
      },
-    subjects: [
-        {
-            type: String,
-            required: true
-        }
-    ],
     designation: {
         type: String, // e.g., "Primary Teacher", "Senior Teacher"
         required: true
@@ -43,8 +43,10 @@ const teacherSchema = new mongoose.Schema({
         }
     ],
     address: {
-        type: String,
-        trim: true
+        street: String,
+        city: String,
+        state: String,
+        postalCode: String,
     },
     gender: {
         type: String,
@@ -59,10 +61,20 @@ const teacherSchema = new mongoose.Schema({
     profileImage: {
         type: String, // URL for the profile picture
     },
-    notes: {
-        type: String,
-        trim: true
-    }
+    subjects: [String], 
+    classAssigned: [String], 
+  attendance: {
+    type: Map,
+    of: Boolean,
+  },
+  hireDate: {
+    type: Date,
+    default: Date.now,
+  },
+  notes: {
+    type: String,
+    trim: true,
+  },
 });
 
-    module.exports = mongoose.model('Teacher', teacherSchema);
+module.exports = mongoose.model('Teacher', teacherSchema);

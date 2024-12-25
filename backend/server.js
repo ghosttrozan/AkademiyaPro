@@ -6,6 +6,7 @@ const connectToDB = require('./config/connectToDB')
 const principalRoutes = require('./routes/principleRoutes')
 const schoolRoutes = require('./routes/schoolRoutes')
 const teacherRoutes = require('./routes/teacherRoutes')
+const classRoutes = require('./routes/classRoutes')
 
 dotenv.config()
 
@@ -23,6 +24,8 @@ app.use("/api/v1/principal" , principalRoutes)
 app.use("/api/v1/school" , schoolRoutes)
 
 app.use("/api/v1/teacher" , teacherRoutes)
+
+app.use("/api/v1/classes" , classRoutes)
 
 //sample routes
 app.get('/', (req , res) => {

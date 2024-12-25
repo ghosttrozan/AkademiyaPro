@@ -8,7 +8,7 @@ async function registerSchool(req , res){
 
   const { name , address , contactNumber , establishedYear , academicYears , schoolEmail , schoolWebsite } = req.body
 
-  if(!name , !address , !contactNumber , !academicYears , !schoolEmail ){
+  if(!name || !address || !contactNumber || !academicYears || !schoolEmail ){
     return res.status(404).json({
       success : false,
       msg : "All fields are required"

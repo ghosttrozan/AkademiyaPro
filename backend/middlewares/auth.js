@@ -52,4 +52,31 @@ const verifyTeacher = async (req , res , next) => {
 
 }
 
-module.exports = {verifyPrincipal , verifyTeacher}
+const verifyUser = async (req, res , next) => {
+
+  let token = req?.headers?.authorization?.replace("Bearer " , "")
+
+  if (!token) {
+    return res.status(400).json({
+      success : false,
+      message : "Please Sign in"
+    })
+  }
+
+  try {
+    let user = await verifyJWT(token)
+    if (!user) {
+      return res.status(400).json({
+        success : false,
+        message : "Invalid Token"
+      })
+    }
+    req.user = user.id
+    next()
+  } catch (error) {
+    return null
+  }
+
+}
+
+module.exports = {verifyPrincipal , verifyTeacher , verifyUser}

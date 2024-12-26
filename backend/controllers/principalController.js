@@ -100,6 +100,7 @@ async function getPrincipalById(req , res){
 
 }
 
+
 async function loginPrincipal(req , res){
 
   try {

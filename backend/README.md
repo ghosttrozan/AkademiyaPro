@@ -119,3 +119,35 @@ The following functions are exported from the `principalController.js` file:
 - `deleteTeacher`
 - `getTeachers`
 - `getTeachersById`
+
+# School Controller Documentation
+
+This document provides an overview of the `schoolController.js` file, which is part of the School Management Software backend. The controller handles operations related to school registration within the system.
+
+## Functions
+
+### 1. `registerSchool(req, res)`
+
+Registers a new school in the system and associates it with a principal.
+
+- **Request Body:**
+
+  - `name` (string): The name of the school.
+  - `address` (string): The address of the school.
+  - `contactNumber` (string): The contact number of the school.
+  - `establishedYear` (number, optional): The year the school was established.
+  - `academicYears` (array): The academic years offered by the school.
+  - `schoolEmail` (string): The email address of the school.
+  - `schoolWebsite` (string, optional): The website of the school.
+
+- **Responses:**
+  - `200 OK`: School registered successfully with details of the new school.
+  - `404 Not Found`: Missing required fields.
+  - `400 Bad Request`: Invalid principal ID.
+  - `500 Internal Server Error`: Error occurred during school registration.
+
+## Exports
+
+The following function is exported from the `schoolController.js` file:
+
+- `registerSchool`

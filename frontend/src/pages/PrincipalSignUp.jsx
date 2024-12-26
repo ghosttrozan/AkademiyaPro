@@ -1,6 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 function PrincipalSignUp() {
+  const [name , setName] = useState("")
+  const [email , setEmail] = useState("")
+  const [constact , setContact] = useState("")
+  const [password , setPassword] = useState("")
+  const [gender, setGender] = useState("")
+  
+  
   
 
   return (
@@ -14,12 +21,16 @@ function PrincipalSignUp() {
           {/* input for name email pass contact and gender */}
           <input 
             type="name" 
+            onChange={(e)=> setName(e.target.value)}
+            value={name}
             placeholder="Your Name *" 
             className="p-3 text-lg text-black rounded border border-gray-300"
             required 
           />
           <input 
             type="email" 
+            onChange={(e)=> setEmail(e.target.value)}
+            value={email}
             placeholder="Your Email *" 
             className="p-3 text-lg text-black rounded border border-gray-300"
             required 
@@ -28,15 +39,20 @@ function PrincipalSignUp() {
           <input 
             type="contact" 
             placeholder="Your Contact No. *" 
+            onChange={(e)=> setContact(e.target.value)}
+            value={constact}
             className="p-3 text-lg text-black rounded border border-gray-300"
             required 
           />
           {/* for gender */}
           <select 
             className="p-3 text-lg rounded border text-gray-700 border-gray-300" 
+            name='select'
+            value={gender}
+            onChange={(e)=> setGender(e.target.value) }
             required
           >
-            <option value="">Select Gender *</option>
+            <option value="" disabled>Select Gender *</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
@@ -44,7 +60,9 @@ function PrincipalSignUp() {
           <input 
             type="password" 
             placeholder="Choose Password *" 
-            className="p-3 text-lg rounded border border-gray-300"
+            onChange={(e)=> setPassword(e.target.value)}
+            value={password}
+            className="p-3 text-lg rounded border text-gray-700 border-gray-300"
             required 
           />
 

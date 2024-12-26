@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 
 function PrincipalSignUp() {
 
@@ -103,7 +104,7 @@ function PrincipalSignUp() {
         </form>
 
         <p className="mt-5 text-sm">
-          have an account? <a href="/login" className="text-blue-400">Login</a>
+          have an account? <Link to="/signin" className="text-blue-400">Login</Link>
         </p>
       </div>
 

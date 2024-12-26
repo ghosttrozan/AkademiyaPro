@@ -5,6 +5,7 @@ function App() {
   return (
     <div className=''>
       <PrincipalSignUp />
+      
     </div>
   )
 }

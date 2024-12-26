@@ -7,6 +7,7 @@ import LandingPage from './LandingPage';
 
 function App() {
   return (
+
     <Router>
       <Routes>
         <Route path='/' element={<LandingPage/>} />
@@ -14,6 +15,7 @@ function App() {
         <Route path='/signin' element={<PrincipalSignIn />} />
       </Routes>
     </Router>
+
   )
 }
 

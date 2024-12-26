@@ -1,13 +1,38 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
 function PrincipalSignUp() {
+
   const [name , setName] = useState("")
   const [email , setEmail] = useState("")
-  const [constact , setContact] = useState("")
+  const [contact , setContact] = useState("")
   const [password , setPassword] = useState("")
   const [gender, setGender] = useState("")
   
+ async function handleSubmit(e){
   
+    e.preventDefault()
+
+    const data = {
+      name,
+      email,
+      contactNumber : contact,
+      password,
+      gender
+    }
+
+    const res = await axios.post('http://localhost:4000/api/v1/principal/register', data)
+
+    localStorage.setItem('token' , res.data.principal.token)
+
+    console.log(res)
+
+    setName("")
+    setContact("")
+    setEmail("")
+    setPassword("")
+    setGender("")
+  }
   
 
   return (
@@ -17,7 +42,7 @@ function PrincipalSignUp() {
         <h1 className="text-2xl mb-5">School Management System</h1>
         <h2 className="text-xl mb-5">Register your account</h2>
 
-        <form className="w-full max-w-sm flex flex-col gap-3">
+        <form onSubmit={(e) => handleSubmit(e)} className="w-full max-w-sm flex flex-col gap-3">
           {/* input for name email pass contact and gender */}
           <input 
             type="name" 
@@ -40,7 +65,7 @@ function PrincipalSignUp() {
             type="contact" 
             placeholder="Your Contact No. *" 
             onChange={(e)=> setContact(e.target.value)}
-            value={constact}
+            value={contact}
             className="p-3 text-lg text-black rounded border border-gray-300"
             required 
           />
@@ -53,9 +78,8 @@ function PrincipalSignUp() {
             required
           >
             <option value="" disabled>Select Gender *</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
           </select>
           <input 
             type="password" 

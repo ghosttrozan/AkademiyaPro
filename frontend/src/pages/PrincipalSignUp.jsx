@@ -10,7 +10,7 @@ function PrincipalSignUp() {
   const [gender, setGender] = useState("")
   
  async function handleSubmit(e){
-  
+
     e.preventDefault()
 
     const data = {
@@ -21,7 +21,7 @@ function PrincipalSignUp() {
       gender
     }
 
-    const res = await axios.post('http://localhost:4000/api/v1/principal/register', data)
+    const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_REGISTER, data)
 
     localStorage.setItem('token' , res.data.principal.token)
 

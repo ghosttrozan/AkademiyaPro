@@ -1,41 +1,76 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link, useNavigate, useNavigation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const PrincipalSignIn = () => {
+
   const [userType, setUserType] = useState("Admin");
-  const [username , setUsername] = useState("")
+  const [contactNumber , setcontactNumber] = useState("")
   const [password , setPassword] = useState("")
+  const navigate = useNavigate()
+
+  const validateMobileNumber = (number) => {
+    // Regex for 10-digit mobile numbers (adjust based on country)
+    const mobileRegex = /^[6-9]\d{9}$/; // For India: starts with 6-9 and has 10 digits.
+    return mobileRegex.test(number);
+  };
+
+
+  const validatePassword = (password) => {
+    // Strong password criteria: Minimum 8 characters, includes uppercase, lowercase, digit, and special character.
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    return passwordRegex.test(password);
+  };
  
  async function handleSubmit(e){
+
     e.preventDefault();
+
+    if (!validateMobileNumber(contactNumber)) {
+      toast.error("Invalid contact number. Please enter a 10-digit mobile number.");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast.error("Invalid password. Please creat a strong password with at least 8 characters, including uppercase, lowercase, digit, and special character.")
+      return;
+    }
 
     const data = {
       // userType, not defined in api will make a new page for it
-      username,
+      contactNumber,
       password,
     }
 
-    const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_LOGIN, data)
+    try {
+      const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_LOGIN, data)
 
-    // localStorage.setItem('token' , res.data.principal.token)
+    if (res.status == 200) {
+      toast.success("Login Successfully")
+      localStorage.setItem('token' , res.data.principal.token)
+      navigate('/dashboard')
+      setUsername("")
+      setPassword("")
+    }
+    } catch (error) {
+      toast.error("Invalid Credientials")
+    }
 
-    console.log(res)
-
-    setUsername("")
-    setPassword("")
   }
 
   return (
     <div className="flex min-h-screen">
+      <ToastContainer />
       {/* Left Section */}
       <div className="w-1/2 bg-white flex flex-col items-center justify-center p-10">
         {/* Logo */}
         <h1 className="text-4xl font-bold text-gray-700 mb-8">
           <span className="text-blue-500">School management</span>
         </h1>
-        <p className="text-sm text-gray-500 mb-8">
+        <Link to={'/signup'} className="text-sm text-gray-500 mb-8">
           I do not have an account yet
-        </p>
+        </Link >
 
         {/* User Type Selection */}
         <div className="flex justify-center mb-6">
@@ -57,14 +92,16 @@ const PrincipalSignIn = () => {
         {/* Login Form */}
         <form className="w-3/4 space-y-4" onSubmit={(e)=>{handleSubmit(e)}}>
           <input
-            type="username"
-            onChange={(e)=> setUsername(e.target.value)}
-            value={username}
-            placeholder="User name"
+            type="number"
+            required
+            onChange={(e)=> setcontactNumber(e.target.value)}
+            value={contactNumber}
+            placeholder="contact number"
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="password"
+            required
             onChange={(e)=> setPassword(e.target.value)}
             value={password}
             placeholder="Password"

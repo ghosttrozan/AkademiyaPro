@@ -9,7 +9,7 @@ function Dashboard() {
   useEffect(() => {
     if (!token) {
       // Redirect to signup page if token is not present
-      navigate('/signup')
+      navigate('/')
     } 
   } , [])
 

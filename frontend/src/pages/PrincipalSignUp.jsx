@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify';
 
 function PrincipalSignUp() {
 
@@ -9,10 +10,50 @@ function PrincipalSignUp() {
   const [contact , setContact] = useState("")
   const [password , setPassword] = useState("")
   const [gender, setGender] = useState("")
+  const navigate = useNavigate()
+  const [agreeTC , setagreeTC] = useState(false)
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
+    return emailRegex.test(email);
+  };
+
+  const validateMobileNumber = (number) => {
+    // Regex for 10-digit mobile numbers (adjust based on country)
+    const mobileRegex = /^[6-9]\d{9}$/; // For India: starts with 6-9 and has 10 digits.
+    return mobileRegex.test(number);
+  };
+
+
+  const validatePassword = (password) => {
+    // Strong password criteria: Minimum 8 characters, includes uppercase, lowercase, digit, and special character.
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    return passwordRegex.test(password);
+  };
   
  async function handleSubmit(e){
 
     e.preventDefault()
+
+    if (!agreeTC) {
+      toast.error("Accept Condition")
+      return
+    }
+
+    if(!validateEmail(email)){
+      toast.error("Invalid Email")
+      return;
+    }
+
+    if(!validatePassword(password)){
+      toast.error("Invalid password. Please creat a strong password with at least 8 characters, including uppercase, lowercase, digit, and special character.")
+      return;
+    }
+
+    if(!validateMobileNumber(contact)){
+      toast.error("Invalid contact number. Please enter a 10-digit mobile number.")
+      return;
+    }
 
     const data = {
       name,
@@ -24,20 +65,28 @@ function PrincipalSignUp() {
 
     const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_REGISTER, data)
 
-    localStorage.setItem('token' , res.data.principal.token)
-
     console.log(res)
 
-    setName("")
-    setContact("")
-    setEmail("")
-    setPassword("")
-    setGender("")
+    if (res.status === 200) {
+      toast.success("Account Created Successfully")
+      localStorage.setItem('token' , res.data.principal.token)
+      navigate('/dashboard')
+      setName("")
+      setContact("")
+      setEmail("")
+      setPassword("")
+      setGender("")
+    } else {
+      toast.error('Failed to sign in account. Please try again.')
+    }
+
+    
   }
   
 
   return (
     <div className="flex h-screen">
+      <ToastContainer />
       {/* Left Section */}
       <div className="flex-1 bg-blue-900 text-white p-10 flex flex-col justify-center items-center">
         <h1 className="text-2xl mb-5">School Management System</h1>
@@ -63,7 +112,7 @@ function PrincipalSignUp() {
           />
           
           <input 
-            type="contact" 
+            type="number" 
             placeholder="Your Contact No. *" 
             onChange={(e)=> setContact(e.target.value)}
             value={contact}
@@ -95,7 +144,7 @@ function PrincipalSignUp() {
             <label className="relative inline-block w-10 h-6">
               <input type="checkbox" className="sr-only" />
               <div className="w-full h-full bg-gray-300 rounded-full shadow-inner"></div>
-              <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-300 ease-in-out"></div>
+              <div onClick={() => setagreeTC((prev) => !prev)} className={`absolute ${agreeTC ? "right-1 bg-blue-400" : "left-1 bg-white"} top-1 w-4 h-4  rounded-full shadow transform transition-transform duration-300 ease-in-out`}></div>
             </label>
             <span className="ml-3 text-sm">Accept our <a href="/terms" className="text-blue-400">Terms & Conditions</a></span>
           </div>

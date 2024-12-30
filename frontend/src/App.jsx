@@ -8,15 +8,15 @@ import LandingPage from './LandingPage';
 function App() {
   return (
 
-    <Router>
-      <Routes>
-        <Route path='/' element={<LandingPage/>} />
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/signup' element={<PrincipalSignUp />} />
-        <Route path='/signin' element={<PrincipalSignIn />} />
-      </Routes>
-    </Router>
-
+    // <Router>
+    //   <Routes>
+    //     <Route path='/' element={<LandingPage/>} />
+    //     <Route path='/dashboard' element={<Dashboard />} />
+    //     <Route path='/signup' element={<PrincipalSignUp />} />
+    //     <Route path='/signin' element={<PrincipalSignIn />} />
+    //   </Routes>
+    // </Router>
+    <Dashboard/>
   )
 }
 

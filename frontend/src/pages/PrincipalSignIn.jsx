@@ -1,150 +1,174 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { Link, useNavigate, useNavigation } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { Typewriter } from "react-simple-typewriter";
+import { ToastContainer, toast } from 'react-toastify';
+import principalSignIn from "../api/authentication";
+import { Link, useNavigate } from "react-router-dom";
 
 const PrincipalSignIn = () => {
 
-  const [userType, setUserType] = useState("Admin");
-  const [contactNumber , setcontactNumber] = useState("")
+  const [email, setEmail] = useState("")
   const [password , setPassword] = useState("")
   const navigate = useNavigate()
 
-  const validateMobileNumber = (number) => {
-    // Regex for 10-digit mobile numbers (adjust based on country)
-    const mobileRegex = /^[6-9]\d{9}$/; // For India: starts with 6-9 and has 10 digits.
-    return mobileRegex.test(number);
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+     // Simple email regex
+    return emailRegex.test(email);
   };
-
-
   const validatePassword = (password) => {
-    // Strong password criteria: Minimum 8 characters, includes uppercase, lowercase, digit, and special character.
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
- 
- async function handleSubmit(e){
 
-    e.preventDefault();
+ async function handleSignIn(e) {
 
-    if (!validateMobileNumber(contactNumber)) {
-      toast.error("Invalid contact number. Please enter a 10-digit mobile number.");
+    e.preventDefault()
+
+    if (!validateEmail(email)) {
+      toast.error("Invalid email address");
       return;
     }
-
     if (!validatePassword(password)) {
-      toast.error("Invalid password. Please creat a strong password with at least 8 characters, including uppercase, lowercase, digit, and special character.")
+      toast.error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character");
       return;
     }
 
-    const data = {
-      // userType, not defined in api will make a new page for it
-      contactNumber,
-      password,
-    }
+   const res = await principalSignIn(email , password) 
 
-    try {
-      const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_LOGIN, data)
-
-    if (res.status == 200) {
-      toast.success("Login Successfully")
-      localStorage.setItem('token' , res.data.principal.token)
-      navigate('/dashboard')
-      setUsername("")
-      setPassword("")
+    if (res) {
+      navigate("/dashboard")
+    } else {
+      toast.error("Invalid credentials");
     }
-    } catch (error) {
-      toast.error("Invalid Credientials")
-    }
-
+    
   }
 
-  return (
-    <div className="flex min-h-screen">
-      <ToastContainer />
-      {/* Left Section */}
-      <div className="w-1/2 bg-white flex flex-col items-center justify-center p-10">
-        {/* Logo */}
-        <h1 className="text-4xl font-bold text-gray-700 mb-8">
-          <span className="text-blue-500">School management</span>
-        </h1>
-        <Link to={'/signup'} className="text-sm text-gray-500 mb-8">
-          I do not have an account yet
-        </Link >
 
-        {/* User Type Selection */}
-        <div className="flex justify-center mb-6">
-          {["Admin", "Employee", "Student"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setUserType(type)}
-              className={`px-4 py-2 mx-2 rounded-full border ${
-                userType === type
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-700 border-gray-300"
-              } hover:shadow-md`}
-            >
-              {type}
-            </button>
-          ))}
+  return (
+
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <ToastContainer/>
+      <div className="flex justify-between  bg-white h-screen shadow-lg rounded-lg w-full">
+        {/* Left Side - Login Form */}
+
+        <div className="flex items-center justify-center w-1/2">
+          <div className="p-8 w-full">
+            {/* Logo */}
+            <div className="text-center mb-6">
+              <h1 className="text-7xl absolute top-10 font-normal text-purple-600 font-serif">
+                <Typewriter
+                  words={["AcademyPro", "School Management"]}
+                  loop={Infinity}
+                  cursor
+                  cursorStyle="|"
+                  typeSpeed={70}
+                  deleteSpeed={50}
+                  delaySpeed={1000} // Time before starting to delete
+                />
+              </h1>
+            </div>
+
+            {/* Login Form */}
+            <form onSubmit={ (e) => handleSignIn(e)} className="space-y-6">
+              {/* Username Field */}
+              <div>
+                <label
+                  className="block text-gray-700 text-lg font-semibold mb-2"
+                  htmlFor="Email"
+                >
+                  Email
+                </label>
+                <input
+                  id="username"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your username or email"
+                  className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label
+                  className="block text-gray-700 text-lg font-semibold mb-2"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Remember Me and Forgot Password */}
+              <div className="flex items-center justify-between">
+                <label className="inline-flex items-center">
+                  <input
+                    onClick={() => setRemember((prev) => !prev)}
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-purple-600 rounded"
+                  />
+                  <span className="ml-2 text-gray-700 text-sm">
+                    Remember me
+                  </span>
+                </label>
+                <a
+                  href="#"
+                  className="text-sm text-purple-600 font-semibold hover:underline"
+                >
+                  Forgot Password?
+                </a>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none hover:bg-purple-700 text-lg transition duration-300"
+              >
+                Login
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center justify-center my-6">
+                <div className="h-px bg-gray-300 w-full"></div>
+                <span className="px-4 text-gray-500">OR</span>
+                <div className="h-px bg-gray-300 w-full"></div>
+              </div>
+              <div className="flex justify-center space-x-4">
+                <Link
+                to={'/signup'}
+                  className="w-full text-center bg-green-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none hover:bg-green-700 text-lg transition duration-300"
+                >
+                  Register your account
+                </Link>
+              </div>
+            </form>
+            <h1 className="absolute bottom-4">
+              <span className="text-2xl font-bold text-gray-800">Powered by </span>
+              <span className="text-2xl cursor-pointer font-bold text-blue-500 hover:text-red-600">
+                Dev Dominators
+              </span>
+            </h1>
+          </div>
         </div>
 
-        {/* Login Form */}
-        <form className="w-3/4 space-y-4" onSubmit={(e)=>{handleSubmit(e)}}>
-          <input
-            type="number"
-            required
-            onChange={(e)=> setcontactNumber(e.target.value)}
-            value={contactNumber}
-            placeholder="contact number"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Right Side - School Image */}
+        <div className="w-1/2">
+          <img
+            src="https://www.jagranimages.com/images/newimg/02082022/02_08_2022-digital_school_in_india_with_5g_connectivity_22947019.webp"
+            alt="School Building"
+            className="w-full h-full rounded-r-lg"
           />
-          <input
-            type="password"
-            required
-            onChange={(e)=> setPassword(e.target.value)}
-            value={password}
-            placeholder="Password"
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <div className="flex items-center">
-            <input type="checkbox" id="rememberMe" className="mr-2" />
-            <label htmlFor="rememberMe" className="text-gray-600">
-              Remember Me
-            </label>
-          </div>
-          <button
-            type="submit"
-            className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Log in
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 mt-4">
-          <a href="#" className="text-blue-500 hover:underline">
-            Forgot password?
-          </a>
-        </p>
-      </div>
-
-      {/* Right Section */}
-      <div className="w-1/2 bg-blue-500 text-white flex flex-col justify-center items-center p-10">
-        <h2 className="text-3xl font-bold mb-4">Start managing now</h2>
-        <p className="text-center mb-8">
-          Stop struggling with common tasks and focus on the real choke points.
-          Discover a fully-featured & 100% Free School management platform.
-        </p>
-        <button className="px-6 py-3 bg-white text-blue-500 rounded-lg hover:bg-gray-100">
-          Get started
-        </button>
-        <img
-          src="https://eskooly.com/bb/asserts/images/illustrations/drawings/login4.png" // Replace with your image URL
-          alt="Illustration"
-          className="mt-8"
-        />
+        </div>
       </div>
     </div>
+
   );
 };
 

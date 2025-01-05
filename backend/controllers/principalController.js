@@ -105,12 +105,12 @@ async function loginPrincipal(req , res){
 
   try {
 
-    const {contactNumber , password} = req.body
+    const {email , password} = req.body
 
-    const Principal = await principal.findOne({contactNumber}).select('+password')
+    const Principal = await principal.findOne({email}).select('+password')
 
     if (!Principal) {
-      return res.status(404).json({
+      return res.status(400).json({
         success : false,
         msg : "Principal not found"
       })

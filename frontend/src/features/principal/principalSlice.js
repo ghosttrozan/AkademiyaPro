@@ -2,10 +2,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  _id: '',
   name: '',
   email: '',
-  contact: '',
-  // Add any other fields you need for the principal
+  contactNumber: '',
+  gender: '',
+  createdAt: null, // Set to null for clarity
 };
 
 const principalSlice = createSlice({
@@ -13,14 +15,23 @@ const principalSlice = createSlice({
   initialState,
   reducers: {
     setPrincipal: (state, action) => {
-      state.name = action.payload.name;
-      state.email = action.payload.email;
-      state.contact = action.payload.contact;
+      const { _id, name, email, contactNumber, gender, createdAt } = action.payload;
+
+      // Update fields dynamically or retain current values
+      state._id = _id ?? state._id;
+      state.name = name ?? state.name;
+      state.email = email ?? state.email;
+      state.contactNumber = contactNumber ?? state.contactNumber;
+      state.gender = gender ?? state.gender;
+      state.createdAt = createdAt ?? state.createdAt;
     },
-    // Add more actions as needed (e.g., resetPrincipal, updateContact, etc.)
+    resetPrincipal: (state) => {
+      // Reset state to initial state
+      Object.assign(state, initialState);
+    },
   },
 });
 
-export const { setPrincipal } = principalSlice.actions;
+export const { setPrincipal, resetPrincipal } = principalSlice.actions;
 
 export default principalSlice.reducer;

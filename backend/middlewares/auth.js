@@ -2,7 +2,6 @@ const {verifyJWT} = require('../utils/authorizationJWT')
 
 const verifyPrincipal = async (req , res , next) => {
   let token = req?.headers?.authorization?.replace("Bearer " , "")
-
   if (!token) {
     return res.status(400).json({
       success : false,

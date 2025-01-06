@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Header from "./Header";
@@ -9,18 +9,14 @@ import ClassWiseStudentsChart from "./ClassWiseStudentChart";
 import AttendancePercentage from "./AttendancePercentage";
 import AcademicCalendar from "./AcademicCalendar";
 import AttendanceTracker from "./AttendanceTracker";
+import { getSchool, verifyPrincipal } from "../../api/authentication";
+import { setPrincipal } from "../../features/principal/principalSlice";
+import { useDispatch } from "react-redux";
+import { setSchool } from "../../features/school/schoolSlice";
 
 function Dashboard() {
-  const navigate = useNavigate();
-
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/signin");
-    }
-    toast.success("Login Successful!");
-  }, [token]);
+  
+  
 
   return (
     <div>
@@ -32,15 +28,15 @@ function Dashboard() {
         <EstimatedFeeCard />
       </div>
       <div className="relative py-2 w-full">
-          <div className="absolute bottom-[-20px] w-full h-[2px] bg-gray-300"></div>
-        </div>
+        <div className="absolute bottom-[-20px] w-full h-[2px] bg-gray-300"></div>
+      </div>
       <div className="flex mt-4 items-center">
-      <ClassWiseStudentsChart />
-      <AttendancePercentage />
+        <ClassWiseStudentsChart />
+        <AttendancePercentage />
       </div>
       <div className="flex px-4 mb-4 items-center justify-between ">
-      <AttendanceTracker />
-      <AcademicCalendar />
+        <AttendanceTracker />
+        <AcademicCalendar />
       </div>
     </div>
   );

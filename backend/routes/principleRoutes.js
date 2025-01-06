@@ -5,7 +5,7 @@ const route = express.Router();
 
 route.post('/register' , registerPrincipal)
 
-route.get('/:id' , getPrincipalById)
+route.get('/verify' , verifyPrincipal , getPrincipalById)
 
 route.post('/login' , loginPrincipal)
 

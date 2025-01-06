@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useDispatch } from 'react-redux';
 import { Typewriter } from "react-simple-typewriter";
 import { ToastContainer, toast } from 'react-toastify';
-import principalSignIn from "../api/authentication";
+import {principalSignIn} from '../api/authentication'
 import { Link, useNavigate } from "react-router-dom";
 
 const PrincipalSignIn = () => {
@@ -33,16 +34,15 @@ const PrincipalSignIn = () => {
       return;
     }
 
-   const res = await principalSignIn(email , password) 
+   const principalId = await principalSignIn(email , password) 
 
-    if (res) {
+    if (principalId) {
       navigate("/dashboard")
     } else {
       toast.error("Invalid credentials");
     }
     
   }
-
 
   return (
 

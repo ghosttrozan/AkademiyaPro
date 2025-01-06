@@ -72,11 +72,8 @@ async function registerPrincipal(req , res){
 }
 
 async function getPrincipalById(req , res){
-
   try {
-
-    const principalId = req.params.id
-
+    const principalId = req.principal
     const Principal = await principal.findById(principalId)
 
   if(!Principal){

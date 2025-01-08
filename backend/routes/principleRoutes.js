@@ -1,11 +1,13 @@
 const express = require('express');
-const { registerPrincipal, getPrincipalById, loginPrincipal, registerNewTeacher, deleteTeacher, getTeachers, getTeachersById } = require('../controllers/principalController');
+const { registerPrincipal, getPrincipalById, loginPrincipal, registerNewTeacher, deleteTeacher, getTeachers, getTeachersById, updatePrincipal } = require('../controllers/principalController');
 const {verifyPrincipal} = require('../middlewares/auth');
 const route = express.Router();
 
 route.post('/register' , registerPrincipal)
 
 route.get('/verify' , verifyPrincipal , getPrincipalById)
+
+route.put('/update' , verifyPrincipal , updatePrincipal)
 
 route.post('/login' , loginPrincipal)
 

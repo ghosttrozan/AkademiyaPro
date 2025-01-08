@@ -97,6 +97,75 @@ async function getPrincipalById(req , res){
 
 }
 
+async function updatePrincipal(req, res) {
+  try {
+    const { name, email, password, gender, contactNumber } = req.body;
+
+    const principalId = req.principal;
+    const Principal = await principal.findById(principalId);
+
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        msg: "Principal not found",
+      });
+    }
+
+    // Check if the new contact number is already in use by another principal
+    const existingPrincipal = await principal.findOne({ contactNumber });
+    if (existingPrincipal && existingPrincipal._id.toString() !== principalId) {
+      return res.status(400).json({
+        success: false,
+        msg: "Contact number already exists",
+      });
+    }
+
+    let hashedPassword = Principal.password;  // Retain old password if not updating
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Update the principal data
+    const updatedPrincipal = await principal.findByIdAndUpdate(
+      principalId,
+      {
+        name,
+        email,
+        gender,
+        password: hashedPassword,
+        contactNumber,
+      },
+      { new: true } // Ensures the updated document is returned
+    );
+
+    // Generate a token if necessary (example, using JWT)
+    const token = await generateJWT({
+      name : updatedPrincipal.name,
+      contactNumber : updatedPrincipal.contactNumber,
+      id : updatedPrincipal._id,
+    })
+
+    return res.status(200).json({
+      success: true,
+      msg: "Principal updated successfully",
+      principal: {
+        _id: updatedPrincipal._id,
+        name: updatedPrincipal.name,
+        email: updatedPrincipal.email,
+        contactNumber: updatedPrincipal.contactNumber,
+        school: updatedPrincipal.school,
+        token,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: "Error occurred while updating principal",
+      err: error.message,
+    });
+  }
+}
+
 
 async function loginPrincipal(req , res){
 
@@ -343,5 +412,6 @@ module.exports = {
   registerNewTeacher,
   deleteTeacher,
   getTeachers,
-  getTeachersById
+  getTeachersById,
+  updatePrincipal
 }

@@ -1,53 +1,72 @@
 import React, { useState } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { Typewriter } from "react-simple-typewriter";
-import { ToastContainer, toast } from 'react-toastify';
-import {principalSignIn} from '../api/authentication'
+import { ToastContainer, toast } from "react-toastify";
+import { getSchool, principalSignIn } from "../api/authentication";
 import { Link, useNavigate } from "react-router-dom";
+import { setSchool } from "../features/school/schoolSlice";
+import { setPrincipal } from "../features/principal/principalSlice";
 
 const PrincipalSignIn = () => {
-
-  const [email, setEmail] = useState("")
-  const [password , setPassword] = useState("")
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-     // Simple email regex
+    // Simple email regex
     return emailRegex.test(email);
   };
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
 
- async function handleSignIn(e) {
-
-    e.preventDefault()
+  async function handleSignIn(e) {
+    e.preventDefault();
 
     if (!validateEmail(email)) {
       toast.error("Invalid email address");
       return;
     }
     if (!validatePassword(password)) {
-      toast.error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+      toast.error(
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      );
       return;
     }
 
-   const principalId = await principalSignIn(email , password) 
+    const principal = await principalSignIn(email, password);
 
-    if (principalId) {
-      navigate("/dashboard")
+    if (principal) {
+      dispatch(setPrincipal(principal));
+      toast.success("Login Successful!");
+
+      if (principal.school) {
+        try {
+          const schoolData = await getSchool(principal.token);
+          if (schoolData) {
+            dispatch(setSchool(schoolData.school));
+            navigate("/dashboard");
+            toast.success("School Updated Successfully!");
+          }
+        } catch (error) {
+          console.error("Error fetching school data:", error);
+          toast.error("Error fetching school data.");
+        }
+      } else {
+        navigate("/school");
+      }
     } else {
       toast.error("Invalid credentials");
     }
-    
   }
 
   return (
-
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="flex justify-between  bg-white h-screen shadow-lg rounded-lg w-full">
         {/* Left Side - Login Form */}
 
@@ -69,7 +88,7 @@ const PrincipalSignIn = () => {
             </div>
 
             {/* Login Form */}
-            <form onSubmit={ (e) => handleSignIn(e)} className="space-y-6">
+            <form onSubmit={(e) => handleSignIn(e)} className="space-y-6">
               {/* Username Field */}
               <div>
                 <label
@@ -142,7 +161,7 @@ const PrincipalSignIn = () => {
               </div>
               <div className="flex justify-center space-x-4">
                 <Link
-                to={'/signup'}
+                  to={"/signup"}
                   className="w-full text-center bg-green-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none hover:bg-green-700 text-lg transition duration-300"
                 >
                   Register your account
@@ -150,7 +169,9 @@ const PrincipalSignIn = () => {
               </div>
             </form>
             <h1 className="absolute bottom-4">
-              <span className="text-2xl font-bold text-gray-800">Powered by </span>
+              <span className="text-2xl font-bold text-gray-800">
+                Powered by{" "}
+              </span>
               <span className="text-2xl cursor-pointer font-bold text-blue-500 hover:text-red-600">
                 Dev Dominators
               </span>
@@ -168,7 +189,6 @@ const PrincipalSignIn = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

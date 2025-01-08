@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../dashboard/Header';
 import { ToastContainer, toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
-import { createSchool } from '../../../api/authentication';
+import { useDispatch, useSelector } from 'react-redux';
+import { createSchool, updateSchool } from '../../../api/authentication';
+import { setSchool } from '../../../features/school/schoolSlice';
+import _ from 'lodash';
 
 function SchoolProfile() {
+
   const principalId = useSelector((state) => state.principal._id);
+  const school = useSelector((state) => state.school)
+
   const { _id, name, logo, contactNumber, address, establishedYear, schoolType, tagLine, schoolEmail, schoolWebsite } = useSelector((state) => state.school);
+
+  const dispatch = useDispatch();
 
   const [profile, setProfile] = useState({
     logo: logo || '',
@@ -80,8 +87,9 @@ function SchoolProfile() {
       return;
     }
 
-    const res = await createSchool(profile, principalId);
-    if (res) {
+    const data = await createSchool(profile, principalId);
+    if (data) {
+      dispatch(setSchool(data.school))
       toast.success("School created successfully");
     } else {
       toast.error("Already registered");
@@ -89,8 +97,10 @@ function SchoolProfile() {
   }
 
   const handleUpdateSchool = async () => {
-    const res = await createSchool(profile, principalId);  // Use an update API if available.
+    const res = await updateSchool(profile, _id); 
+    console.log(res)
     if (res) {
+      dispatch(setSchool(res.school))
       toast.success("School updated successfully");
     } else {
       toast.error("Failed to update");

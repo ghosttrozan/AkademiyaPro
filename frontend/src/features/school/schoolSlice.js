@@ -3,9 +3,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   _id: '',
-  name: 'Reliable Public School',
-  address: 'near hp gas agency, kota road, suket, rajasthan',
-  contactNumber: '01234568789',
+  name: 'Schhol Name',
+  address: 'Indore , M.P',
+  contactNumber: '6378211202',
   establishedYear: 2005,
   schoolType: '',
   principal: '',

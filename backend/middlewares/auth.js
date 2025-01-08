@@ -20,7 +20,7 @@ const verifyPrincipal = async (req , res , next) => {
     req.principal = principal.id
     next()
   } catch (error) {
-    return null
+    return false
   }
 
 }

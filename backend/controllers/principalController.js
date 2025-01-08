@@ -235,9 +235,9 @@ async function registerNewTeacher(req , res){
     })
   }
 
-  const { firstName , lastName , email , contactNumber , classAssigned , hireDate , subjects , designation , salary , address , gender , password} = req.body
+  const { firstName , lastName , email , contactNumber , subjects , designation , salary , address , gender , password , fatherName , religion , education , birthDate } = req.body
 
-  if(!firstName || !contactNumber || !password || !subjects || !designation || !salary || !address || !gender){
+  if(!firstName || !contactNumber || !password || !designation || !salary || !address || !gender || !email){
     return res.status(400).json({
       success : false,
       msg : "Please provide all required fields"
@@ -269,8 +269,10 @@ async function registerNewTeacher(req , res){
     salary,
     address,
     gender,
-    classAssigned ,
-    hireDate
+    fatherName,
+    religion, 
+    education, 
+    birthDate
   })
 
   const token = await generateJWT({

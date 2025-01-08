@@ -185,7 +185,7 @@ const PrincipalProfile = () => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute bottom-0 right-4 transform -translate-y-2/4 text-purple-600"
+                className="absolute bottom-0 text-2xl right-4 transform -translate-y-2/4 text-purple-600"
               >
                 {showPassword ? <RxEyeOpen /> : <GoEyeClosed />}
               </button>

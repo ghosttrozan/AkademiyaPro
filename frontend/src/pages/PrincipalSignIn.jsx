@@ -2,16 +2,20 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Typewriter } from "react-simple-typewriter";
 import { ToastContainer, toast } from "react-toastify";
-import { getSchool, principalSignIn } from "../api/authentication";
+import { principalSignIn } from "../api/authentication";
+import { getSchool } from "../api/school";
 import { Link, useNavigate } from "react-router-dom";
 import { setSchool } from "../features/school/schoolSlice";
 import { setPrincipal } from "../features/principal/principalSlice";
+import { GoEyeClosed } from "react-icons/go";
+import { RxEyeOpen } from "react-icons/rx";
 
 const PrincipalSignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,6 +26,10 @@ const PrincipalSignIn = () => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   async function handleSignIn(e) {
@@ -108,7 +116,7 @@ const PrincipalSignIn = () => {
               </div>
 
               {/* Password Field */}
-              <div>
+              <div className="relative">
                 <label
                   className="block text-gray-700 text-lg font-semibold mb-2"
                   htmlFor="password"
@@ -117,12 +125,19 @@ const PrincipalSignIn = () => {
                 </label>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
+                <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute bottom-0 text-2xl right-4 transform -translate-y-2/4 text-purple-600"
+              >
+                {showPassword ? <RxEyeOpen /> : <GoEyeClosed />}
+              </button>
               </div>
 
               {/* Remember Me and Forgot Password */}

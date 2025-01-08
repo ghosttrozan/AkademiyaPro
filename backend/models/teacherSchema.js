@@ -12,6 +12,10 @@ const teacherSchema = new mongoose.Schema({
             trim: true
         }
     },
+    fatherName : {
+        type: String,
+        trim: true
+    },
     email: {
         type: String,
     },
@@ -53,6 +57,15 @@ const teacherSchema = new mongoose.Schema({
         enum: ['Male', 'Female'],
         required: true
     },
+    religion: {
+        type: String,
+    },
+    education : {
+        type: String,
+    },
+    birthDate : {
+        type: Date,
+    },
     password: {
         type: String,
         required: true,
@@ -62,14 +75,9 @@ const teacherSchema = new mongoose.Schema({
         type: String, // URL for the profile picture
     },
     subjects: [String], 
-    classAssigned: [String], 
-  attendance: {
+    attendance: {
     type: Map,
     of: Boolean,
-  },
-  hireDate: {
-    type: Date,
-    default: Date.now,
   },
   notes: {
     type: String,

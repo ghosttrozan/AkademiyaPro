@@ -9,7 +9,8 @@ import ClassWiseStudentsChart from "./ClassWiseStudentChart";
 import AttendancePercentage from "./AttendancePercentage";
 import AcademicCalendar from "./AcademicCalendar";
 import AttendanceTracker from "./AttendanceTracker";
-import { getSchool, verifyPrincipal } from "../../api/authentication";
+import { verifyPrincipal } from "../../api/authentication";
+import { getSchool } from "../../api/school";
 import { setPrincipal } from "../../features/principal/principalSlice";
 import { useDispatch } from "react-redux";
 import { setSchool } from "../../features/school/schoolSlice";
@@ -23,14 +24,14 @@ function Dashboard() {
       <ToastContainer />
       <Header />
       <NavData />
-      <div className="relative px-6 flex w-full items-center justify-between mb-4">
+      <div className="relative px-6 justify-center flex w-full items-center justify-between mb-4">
         <ExpenseIncomeChart />
         <EstimatedFeeCard />
       </div>
       <div className="relative py-2 w-full">
         <div className="absolute bottom-[-20px] w-full h-[2px] bg-gray-300"></div>
       </div>
-      <div className="flex mt-4 items-center">
+      <div className="flex mt-4 justify-center items-center">
         <ClassWiseStudentsChart />
         <AttendancePercentage />
       </div>

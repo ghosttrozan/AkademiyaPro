@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../dashboard/Header';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { createSchool, updateSchool } from '../../../api/authentication';
+import { createSchool, updateSchool } from '../../../api/school';
 import { setSchool } from '../../../features/school/schoolSlice';
 import _ from 'lodash';
 

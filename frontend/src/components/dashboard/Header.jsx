@@ -16,6 +16,23 @@ const Header = () => {
 
   const { name, logo } = useSelector((state) => state.school);
 
+  // Function to toggle fullscreen
+  const toggleFullscreen = () => {
+    const element = document.documentElement; // Use document.documentElement to make the whole page fullscreen
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen(); // Exit fullscreen if already in fullscreen mode
+    } else if (element.requestFullscreen) {
+      element.requestFullscreen(); // Request fullscreen
+    } else if (element.mozRequestFullScreen) { // Firefox
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { // IE/Edge
+      element.msRequestFullscreen();
+    }
+  };
+
   useEffect(() => {
     const typewriter = setInterval(() => {
       if (charIndex < placeholders[placeholderIndex].length) {
@@ -71,7 +88,7 @@ const Header = () => {
           </svg>
         </button>
         {/* Fullscreen Icon */}
-        <button>
+        <button onClick={toggleFullscreen}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -96,7 +113,7 @@ const Header = () => {
           <input
             type="text"
             placeholder={textRef.current} // Using the ref for text to prevent re-renders
-            className="w-full max-w-lg px-16 py-1 border rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
+            className="w-full max-w-lg px-28 py-1 border rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
           />
         </div>
         <button>

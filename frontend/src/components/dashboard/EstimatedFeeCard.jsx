@@ -10,7 +10,7 @@ const EstimatedFeeCard = () => {
   const percentage = (collections / estimation) * 100;
 
   return (
-    <div className="bg-white h-full p-8 w-[25%] border-2 rounded-2xl shadow-lg flex flex-col justify-between">
+    <div className="bg-white h-full p-8 w-[25%] border-2 rounded-xl hover:shadow-2xl flex flex-col justify-between">
       <h2 className="text-lg text-gray-600 font-semibold mb-4">
         Estimated Fee This Month
       </h2>

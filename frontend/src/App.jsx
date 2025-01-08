@@ -11,11 +11,13 @@ import PrincipalSignIn from "./pages/PrincipalSignIn";
 import LandingPage from "./components/LandingPage";
 import SchoolProfile from "./components/profile/school/SchoolProfile";
 import { useDispatch } from "react-redux";
-import { getSchool, verifyPrincipal } from "./api/authentication";
+import { verifyPrincipal } from "./api/authentication";
+import { getSchool } from "./api/school";
 import { setPrincipal } from "./features/principal/principalSlice";
 import { toast } from "react-toastify";
 import { setSchool } from "./features/school/schoolSlice";
 import PrincipalProfile from "./components/profile/principal/PrincipalProfile";
+import AllTeachers from "./components/profile/teacher/AllTeachers";
 
 function App() {
   return (
@@ -83,6 +85,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/school" element={<SchoolProfile />} />
       <Route path="/principal" element={<PrincipalProfile />} />
+      <Route path="/all-teachers" element={<AllTeachers />} />
     </Routes>
   );
 }

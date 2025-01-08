@@ -58,7 +58,7 @@ const AcademicCalendar = () => {
   };
 
   return (
-    <div className="bg-white border-2 rounded-2xl shadow-lg p-6 rounded-2xl shadow-lg mr-2 w-[29%]">
+    <div className="bg-white border-2 rounded-2xl shadow-lg p-6 rounded-2xl hover:shadow-2xl mr-2 w-[29%]">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <button

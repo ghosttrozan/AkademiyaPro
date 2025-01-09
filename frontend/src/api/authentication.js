@@ -19,7 +19,8 @@ export async function principalSignIn(email, password) {
     const res = await axios.post(BASE_URL.VITE_BASE_URL_PRINCIPAL_LOGIN, data);
     if (res.status === 200) {
       const principalData = res.data.principal;
-      localStorage.setItem('token', principalData.token);
+      console.log(principalData)
+      localStorage.setItem('token', principalData.token.token);
       return principalData;
     }
   } catch (error) {
@@ -28,8 +29,9 @@ export async function principalSignIn(email, password) {
   }
 }
 
-export async function verifyPrincipal(token) {
+export async function verifyPrincipal() {
   try {
+    const token = localStorage.getItem('token');
     const response = await axios.get(BASE_URL.VITE_BASE_URL_PRINCIPAL_VERIFY, {
       headers: { Authorization: `Bearer ${token}` },
     });

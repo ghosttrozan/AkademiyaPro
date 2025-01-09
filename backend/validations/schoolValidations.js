@@ -109,6 +109,7 @@ const updateSchoolSchema = Joi.object({
     "string.uri": "School website must be a valid URL.",
   }),
   tagLine: Joi.string().optional(),
+  establishedYear: Joi.number().optional()
 });
 
 module.exports = { schoolSchema , updateSchoolSchema };

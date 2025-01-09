@@ -31,7 +31,7 @@ const principleSchema = mongoose.Schema({
   },
   role: {
     type: String,
-    default: 'Principal', // This ensures role consistency
+    default: 'principal', // This ensures role consistency
   },
   createdAt: {
     type: Date,

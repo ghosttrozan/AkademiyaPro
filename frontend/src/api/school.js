@@ -13,20 +13,22 @@ export async function createSchool(profile) {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    if (response.status === 200) {
-      return response.data;
-    }
+    console.log(response)
+      return response;
+    
   } catch (error) {
     console.error(error);
-    return false;
+    return error.response;
   }
 }
 
-export async function getSchool(token) {
+export async function getSchool() {
+  const token = localStorage.getItem('token');
   try {
     const response = await axios.get(BASE_URL.VITE_BASE_URL_SCHOOL_DETAILS, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    console.log(response)
     return response.status === 200 ? response.data : false;
   } catch (error) {
     console.error(error);
@@ -50,6 +52,6 @@ export async function updateSchool(profile, _id) {
     }
   } catch (error) {
     console.error(error);
-    return false;
+    return error
   }
 }

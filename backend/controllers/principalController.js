@@ -54,6 +54,7 @@ async function registerPrincipal(req, res) {
       contactNumber: newPrincipal.contactNumber,
       id: newPrincipal._id,
       school: newPrincipal.school,
+      role: newPrincipal.role
     });
 
     return res.status(201).json({
@@ -80,8 +81,8 @@ async function registerPrincipal(req, res) {
 
 async function getPrincipalById(req, res) {
   try {
-    const principalId = req.principal // Get principal ID from the middleware
-
+    const principalId = req.principal // Get principal ID from the middleware 
+    console.log(principalId)
     // Find the principal by ID
     const foundPrincipal = await principal.findById(principalId)
 
@@ -224,6 +225,7 @@ async function loginPrincipal(req, res) {
       contactNumber: Principal.contactNumber,
       id: Principal._id,
       school: Principal.school,
+      role: Principal.role,
     });
 
     // Send successful response

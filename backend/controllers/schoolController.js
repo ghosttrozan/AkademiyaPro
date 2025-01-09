@@ -33,6 +33,17 @@ async function registerSchool(req, res) {
       });
     }
 
+    const isEmailAlreadyRegistered = await school.findOne({schoolEmail: value.schoolEmail});
+
+    if(isEmailAlreadyRegistered) {
+      return res.status(400).json({
+        success: false,
+        details : [
+          "Email already registered."
+        ]
+      });
+    }
+
     // Create a new school
     const newSchool = await school.create({
       ...value, // Use validated fields from Joi

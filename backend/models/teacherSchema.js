@@ -79,6 +79,10 @@ const teacherSchema = new mongoose.Schema({
     type: Map,
     of: Boolean,
   },
+  role: {
+    type: String,
+    default: 'Teacher',
+  },
   notes: {
     type: String,
     trim: true,

@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken'); 
+const jwt = require('jsonwebtoken');
 
 // Function to generate JWT token
 async function generateJWT(payload) {
   try {
-    const token = await jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
-    return token;
+    const token = await jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10h' });
+    return { success: true, token };
   } catch (error) {
-    console.log("Error generating JWT:", error);
-    return null;
+    console.log("Error generating JWT:", error.message);
+    return { success: false, error: 'Error generating token' };
   }
 }
 
@@ -15,10 +15,14 @@ async function generateJWT(payload) {
 async function verifyJWT(token) {
   try {
     const decoded = await jwt.verify(token, process.env.JWT_SECRET); 
-    return decoded;
+    return { success: true, decoded };
   } catch (error) {
-    console.log("Error in verifyJWT:", error);
-    return null;
+    if (error.name === 'TokenExpiredError') {
+      console.log("Token expired:", error.message);
+      return { success: false, error: 'Token expired' };  // Specific error message for expired tokens
+    }
+    console.log("Error in verifyJWT:", error.message);
+    return { success: false, error: 'Invalid token' };  // Generic error for invalid token
   }
 }
 
@@ -26,10 +30,10 @@ async function verifyJWT(token) {
 async function decodeJWT(token) {
   try {
     const decoded = await jwt.decode(token); 
-    return decoded;
+    return { success: true, decoded };
   } catch (error) {
-    console.log("Error in decodeJWT:", error);
-    return null;
+    console.log("Error in decodeJWT:", error.message);
+    return { success: false, error: 'Error decoding token' };
   }
 }
 

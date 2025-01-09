@@ -86,13 +86,16 @@ function SchoolProfile() {
       toast.error("Invalid contact number. Please enter a 10-digit mobile number.");
       return;
     }
-
-    const data = await createSchool(profile, principalId);
-    if (data) {
-      dispatch(setSchool(data.school))
-      toast.success("School created successfully");
-    } else {
-      toast.error("Already registered");
+    const response  = await createSchool(profile, principalId);
+    if (response.status === 201) {
+      dispatch(setSchool(response.data.school))
+      toast.success(response.data.message);
+    }
+    else if (response.status === 400) {
+      toast.error(response.data.details[0]);
+    }
+     else {
+      toast.error("Error Occured: " + response?.data?.details[0]);
     }
   }
 
@@ -184,6 +187,20 @@ function SchoolProfile() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Phone Number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  name="email"
+                  value={profile.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="example@example.com"
                 />
               </div>
               <div>

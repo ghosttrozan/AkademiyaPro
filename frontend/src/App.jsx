@@ -40,34 +40,46 @@ function AppRoutes() {
 
     const fetchPrincipalData = async () => {
       try {
+        // Verify Principal Token
         const principalData = await verifyPrincipal(token);
-        if (principalData) {
-          dispatch(setPrincipal(principalData));
-          fetchSchoolData();
-          navigate("/dashboard");
-          toast.success("Login Successful!");
-        } else {
+        if (!principalData) {
           toast.error("Verification failed. Redirecting to sign-in.");
           navigate("/signin");
+          return;
+        }
+
+        // Update Principal Data
+        console.log("Principal Data:", principalData);
+        dispatch(setPrincipal(principalData));
+        toast.success("Login Successful!");
+        navigate("/dashboard");
+
+        // Fetch School Data if Principal is linked to a school
+        if (principalData.school) {
+          await fetchSchoolData();
+        } 
+        if(!principalData.school) {
+          navigate("/school");
         }
       } catch (error) {
         console.error("Error fetching principal data:", error);
-        toast.error("Error fetching principal data. Please try again.");
+        toast.error("Error verifying principal data. Please try again.");
         navigate("/signin");
       }
     };
 
     const fetchSchoolData = async () => {
       try {
-        const schoolData = await getSchool(token);
-        if(!schoolData){
+        const schoolData = await getSchool();
+        if (!schoolData) {
           navigate("/school");
           return;
         }
-        if (schoolData) {
-          dispatch(setSchool(schoolData.school));
-          toast.success("School Updated Successfully!");
-        }
+        // Update School Data
+        console.log("School Data:", schoolData);
+        dispatch(setSchool(schoolData.school));
+        toast.success("School Get Successfully!");
+        navigate('/dashboard');
       } catch (error) {
         console.error("Error fetching school data:", error);
         toast.error("Error fetching school data.");

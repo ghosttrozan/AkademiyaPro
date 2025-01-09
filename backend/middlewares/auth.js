@@ -1,59 +1,59 @@
-const { verifyJWT } = require('../utils/authorizationJWT')
+const { verifyJWT } = require('../utils/authorizationJWT');
 
 // Utility function to handle token verification
-const verifyToken = async (token, res) => {
+const verifyToken = async (token) => {
   if (!token) {
+    throw new Error("Please Sign in");
+  }
+
+  try {
+    const { success, decoded, error } = await verifyJWT(token);
+
+    if (!success) {
+      throw new Error(error || "Invalid or expired token");
+    }
+
+    return decoded;
+  } catch (error) {
+    throw new Error(error.message || "An error occurred while verifying the token");
+  }
+};
+
+// Middleware to verify specific roles
+const verifyRole = (role) => async (req, res, next) => {
+  const token = req?.headers?.authorization?.replace("Bearer ", "");
+  try {
+    const decodedUser = await verifyToken(token);
+
+    console.log(decodedUser)
+
+    // Check for specific role and attach to request object
+    if (role === 'principal' && decodedUser.role === 'Principal') {
+      req.principal = decodedUser.id;
+    } else if (role === 'teacher' && decodedUser.role === 'Teacher') {
+      req.teacher = decodedUser.id;
+    } else if (role === 'user' && decodedUser.role === 'user') {
+      req.user = decodedUser.id;
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: `Forbidden: You are not authorized as a ${role}`
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error verifying token:", error);
     return res.status(401).json({
       success: false,
-      message: "Please Sign in"
-    })
+      message: error.message || "Token verification failed"
+    });
   }
-  try {
-    const user = await verifyJWT(token)
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid or expired token"
-      })
-    }
-    return user
-  } catch (error) {
-    console.error("Error verifying token:", error)
-    return res.status(500).json({
-      success: false,
-      message: "An error occurred while verifying the token"
-    })
-  }
-}
+};
 
-const verifyPrincipal = async (req, res, next) => {
-  const token = req?.headers?.authorization?.replace("Bearer ", "")
-  const principal = await verifyToken(token, res)
-  
-  if (principal) {
-    req.principal = principal.id
-    next()
-  }
-}
+// Specific middlewares for principal, teacher, and user
+const verifyPrincipal = verifyRole('principal');
+const verifyTeacher = verifyRole('teacher');
+const verifyUser = verifyRole('user');
 
-const verifyTeacher = async (req, res, next) => {
-  const token = req?.headers?.authorization?.replace("Bearer ", "")
-  const teacher = await verifyToken(token, res)
-  
-  if (teacher) {
-    req.teacher = teacher.id
-    next()
-  }
-}
-
-const verifyUser = async (req, res, next) => {
-  const token = req?.headers?.authorization?.replace("Bearer ", "")
-  const user = await verifyToken(token, res)
-
-  if (user) {
-    req.user = user.id
-    next()
-  }
-}
-
-module.exports = { verifyPrincipal, verifyTeacher, verifyUser }
+module.exports = { verifyPrincipal, verifyTeacher, verifyUser };

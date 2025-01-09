@@ -1,39 +1,67 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const dotenv = require('dotenv')
-const connectToDB = require('./config/connectToDB')
-const principalRoutes = require('./routes/principleRoutes')
-const schoolRoutes = require('./routes/schoolRoutes')
-const teacherRoutes = require('./routes/teacherRoutes')
-const classRoutes = require('./routes/classRoutes')
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const morgan = require('morgan');
+const connectToDB = require('./config/connectToDB');
+const principalRoutes = require('./routes/principleRoutes');
+const schoolRoutes = require('./routes/schoolRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
+const classRoutes = require('./routes/classRoutes');
 
-dotenv.config()
+dotenv.config();
 
-const app = express()
-const PORT = process.env.PORT || 3000
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-//Middleware 
-app.use(cors())
-app.use(express.json())
+// Validate environment variables
+if (!process.env.MONGO_URI || !process.env.PORT) {
+  console.error('Missing required environment variables');
+  process.exit(1);
+}
 
-// Route handlers 
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(morgan('dev'));
 
-app.use("/api/v1/principal" , principalRoutes)
+// Route handlers
+const routes = [
+  { path: '/api/v1/principal', route: principalRoutes },
+  { path: '/api/v1/school', route: schoolRoutes },
+  { path: '/api/v1/teacher', route: teacherRoutes },
+  { path: '/api/v1/classes', route: classRoutes },
+];
+routes.forEach(({ path, route }) => app.use(path, route));
 
-app.use("/api/v1/school" , schoolRoutes)
+// Sample route
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 
-app.use("/api/v1/teacher" , teacherRoutes)
+// Error handling middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.status || 500;
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
 
-app.use("/api/v1/classes" , classRoutes)
+// Start the server and connect to the database
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+  connectToDB()
+    .then(() => console.log('Database connected successfully!'))
+    .catch((err) => {
+      console.error('Database connection failed:', err);
+      process.exit(1);
+    });
+});
 
-//sample routes
-app.get('/', (req , res) => {
-  res.send('Hello World!')
-})
-
-//start the server
-app.listen(PORT , ( ) => {
-  console.log("server listening on port " + PORT + "...")
-  connectToDB()  //connect to MongoDB
-})
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully...');
+  await mongoose.connection.close();
+  process.exit(0);
+});

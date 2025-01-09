@@ -1,22 +1,33 @@
 const express = require('express');
-const { registerPrincipal, getPrincipalById, loginPrincipal, registerNewTeacher, deleteTeacher, getTeachers, getTeachersById, updatePrincipal } = require('../controllers/principalController');
-const {verifyPrincipal} = require('../middlewares/auth');
+const {
+  registerPrincipal,
+  getPrincipalById,
+  loginPrincipal,
+  registerNewTeacher,
+  deleteTeacher,
+  getTeachers,
+  getTeachersById,
+  updatePrincipal,
+} = require('../controllers/principalController');
+const { verifyPrincipal } = require('../middlewares/auth');
+const { principalRegisterSchema } = require('../validations/principalValidation'); // Joi schema
+const { validate } = require('../middlewares/validate'); // Import the validate function
 const route = express.Router();
 
-route.post('/register' , registerPrincipal)
+route.post('/register', validate(principalRegisterSchema), registerPrincipal); // Use validate middleware here
 
-route.get('/verify' , verifyPrincipal , getPrincipalById)
+route.get('/verify', verifyPrincipal, getPrincipalById);
 
-route.put('/update' , verifyPrincipal , updatePrincipal)
+route.put('/update', verifyPrincipal, updatePrincipal);
 
-route.post('/login' , loginPrincipal)
+route.post('/login', loginPrincipal);
 
-route.post('/register/new/teacher' , verifyPrincipal , registerNewTeacher)
+route.post('/register/new/teacher', verifyPrincipal, registerNewTeacher);
 
-route.delete('/remove/teacher/:id' , verifyPrincipal , deleteTeacher)
+route.delete('/remove/teacher/:id', verifyPrincipal, deleteTeacher);
 
-route.get('/all/teachers' , verifyPrincipal , getTeachers)
+route.get('/all/teachers', verifyPrincipal, getTeachers);
 
-route.get('/teacher/:id' , verifyPrincipal , getTeachersById)
+route.get('/teacher/:id', verifyPrincipal, getTeachersById);
 
 module.exports = route;

@@ -1,81 +1,59 @@
-const {verifyJWT} = require('../utils/authorizationJWT')
+const { verifyJWT } = require('../utils/authorizationJWT')
 
-const verifyPrincipal = async (req , res , next) => {
-  let token = req?.headers?.authorization?.replace("Bearer " , "")
+// Utility function to handle token verification
+const verifyToken = async (token, res) => {
   if (!token) {
-    return res.status(400).json({
-      success : false,
-      message : "Please Sign in"
+    return res.status(401).json({
+      success: false,
+      message: "Please Sign in"
     })
   }
-  // Verify the token and get the principal ID. If invalid, return an error response.
   try {
-    let principal = await verifyJWT(token)
-    if (!principal) {
-      return res.status(400).json({
-        success : false,
-        message : "Invalid Token"
+    const user = await verifyJWT(token)
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token"
       })
     }
+    return user
+  } catch (error) {
+    console.error("Error verifying token:", error)
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while verifying the token"
+    })
+  }
+}
+
+const verifyPrincipal = async (req, res, next) => {
+  const token = req?.headers?.authorization?.replace("Bearer ", "")
+  const principal = await verifyToken(token, res)
+  
+  if (principal) {
     req.principal = principal.id
     next()
-  } catch (error) {
-    return false
   }
-
 }
 
-const verifyTeacher = async (req , res , next) => {
-  let token = req?.headers?.authorization?.replace("Bearer " , "")
-
-  if (!token) {
-    return res.status(400).json({
-      success : false,
-      message : "Please Sign in"
-    })
-  }
-  // Verify the token and get the principal ID. If invalid, return an error response.
-  try {
-    let teacher = await verifyJWT(token)
-    if (!teacher) {
-      return res.status(400).json({
-        success : false,
-        message : "Invalid Token"
-      })
-    }
+const verifyTeacher = async (req, res, next) => {
+  const token = req?.headers?.authorization?.replace("Bearer ", "")
+  const teacher = await verifyToken(token, res)
+  
+  if (teacher) {
     req.teacher = teacher.id
     next()
-  } catch (error) {
-    return null
   }
-
 }
 
-const verifyUser = async (req, res , next) => {
+const verifyUser = async (req, res, next) => {
+  const token = req?.headers?.authorization?.replace("Bearer ", "")
+  const user = await verifyToken(token, res)
 
-  let token = req?.headers?.authorization?.replace("Bearer " , "")
-
-  if (!token) {
-    return res.status(400).json({
-      success : false,
-      message : "Please Sign in"
-    })
-  }
-
-  try {
-    let user = await verifyJWT(token)
-    if (!user) {
-      return res.status(400).json({
-        success : false,
-        message : "Invalid Token"
-      })
-    }
+  if (user) {
     req.user = user.id
     next()
-  } catch (error) {
-    return null
   }
-
 }
 
-module.exports = {verifyPrincipal , verifyTeacher , verifyUser}
+module.exports = { verifyPrincipal, verifyTeacher, verifyUser }

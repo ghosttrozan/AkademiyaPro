@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../dashboard/Header";
-import { getAllTeacher } from "../../../api/teacher";
+import { getAllTeacher, registerTeacher } from "../../../api/teacher";
+import { ToastContainer, toast } from "react-toastify";
 
 function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState([]);
   const [newEmployee, setNewEmployee] = useState({
     birthDate: "",
-    classes: [],
     contactNumber: "",
     designation: "",
     education: "",
     email: "",
     fatherName: "",
     fullName: { firstName: "", lastName: "" },
+    address: "",
+    password: "",
+    education: "",
     gender: "",
-    joiningDate: "",
-    role: "Teacher",
     salary: "",
-    school: "",
     subjects: [],
-    _id: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,10 +27,12 @@ function EmployeeList() {
     setSearchTerm(event.target.value);
   };
 
+
   useEffect(() => {
     async function getTeachers() {
       const teachers = await getAllTeacher();
       if (teachers.length > 0) {
+        console.log("teachers Data : " , teachers)
         setEmployees(teachers);
       }
     }
@@ -44,12 +45,24 @@ function EmployeeList() {
     );
   };
 
-  const handleAddEmployee = () => {
-    if (newEmployee.name && newEmployee.role) {
-      const newId = employees.length + 1;
-      setEmployees([...employees, { id: newId, ...newEmployee }]);
-      setNewEmployee({ name: "", role: "", avatar: "", email: "" });
-      setIsModalOpen(false);
+  const handleAddTeacher = async () => {
+    if (newEmployee.fullName.firstName &&  newEmployee.address && newEmployee.contactNumber && newEmployee.gender && newEmployee.password && newEmployee.salary) {
+
+      const newTeacher = await registerTeacher(newEmployee)
+
+      if(newTeacher?.success){
+        setEmployees((prev) => [...prev , newTeacher.teacher])
+        toast.success(newTeacher?.msg)
+        setIsModalOpen(false);
+        return;
+      }
+      if(!newTeacher?.success){
+        toast.error(newTeacher?.msg)
+        return;
+      }
+    }
+    else{
+      toast.error("Try again")
     }
   };
 
@@ -60,6 +73,7 @@ function EmployeeList() {
 
   return (
     <div>
+      <ToastContainer />
       <div className="bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 min-h-screen">
         <Header />
         <div className="container mt-16 mx-auto p-8">
@@ -94,7 +108,10 @@ function EmployeeList() {
                 >
                   <div className="text-center">
                     <img
-                      src={employee.avatar || "https://imgs.search.brave.com/sUZwJ20CCZf0kYOx8OffaRakk-cklwF81AKt7Drs-zk/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTMy/NzYwMzkyOS9waG90/by9wb3J0cmFpdC1v/Zi1tYXR1cmUtYnVz/aW5lc3NtYW4uanBn/P3M9NjEyeDYxMiZ3/PTAmaz0yMCZjPWZ3/YldhNjBkOUJfdTEt/N3d3VUhVcS1YUzZQ/VmsteHY3WnBlbUQ4/S0MyX2c9"}
+                      src={
+                        employee.avatar ||
+                        "https://imgs.search.brave.com/sUZwJ20CCZf0kYOx8OffaRakk-cklwF81AKt7Drs-zk/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTMy/NzYwMzkyOS9waG90/by9wb3J0cmFpdC1v/Zi1tYXR1cmUtYnVz/aW5lc3NtYW4uanBn/P3M9NjEyeDYxMiZ3/PTAmaz0yMCZjPWZ3/YldhNjBkOUJfdTEt/N3d3VUhVcS1YUzZQ/VmsteHY3WnBlbUQ4/S0MyX2c9"
+                      }
                       alt={`${employee.fullName.firstName} ${employee.fullName.lastName}`}
                       className="rounded-full w-32 h-32 mx-auto mt-4 mb-6 shadow-lg"
                     />
@@ -108,7 +125,7 @@ function EmployeeList() {
                       {employee.email}
                     </p>
                     <p className="text-lg text-gray-500">
-                      {employee.contactNumber || "N/A"}
+                      +91-{employee.contactNumber || "N/A"}
                     </p>
 
                     {/* Action Buttons */}
@@ -170,47 +187,205 @@ function EmployeeList() {
           {/* Modal for Adding New Employee */}
           {isModalOpen && (
             <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-white p-6 rounded-lg w-1/3">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Add New Employee
-                </h2>
-                <input
-                  type="text"
-                  placeholder="Name"
-                  value={newEmployee.name}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, name: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Role"
-                  value={newEmployee.role}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, role: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Avatar URL"
-                  value={newEmployee.avatar}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, avatar: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={newEmployee.email}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, email: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
-                />
-                <div className="flex justify-between">
+              <div className="bg-white p-6 rounded-lg w-2/3">
+                <h2 className="text-2xl font-semibold mb-4">Add New Teacher</h2>
+                <form className="grid grid-cols-2 gap-4">
+                  {/* Full Name */}
+                  <div className="col-span-2 sm:col-span-1">
+                    <input
+                      type="text"
+                      required
+                      placeholder="First Name (required)"
+                      value={newEmployee.fullName.firstName}
+                      onChange={(e) =>
+                        setNewEmployee({
+                          ...newEmployee,
+                          fullName: {
+                            ...newEmployee.fullName,
+                            firstName: e.target.value,
+                          },
+                        })
+                      }
+                      className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                    />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <input
+                      type="text"
+                      placeholder="Last Name (optional)"
+                      value={newEmployee.fullName.lastName}
+                      onChange={(e) =>
+                        setNewEmployee({
+                          ...newEmployee,
+                          fullName: {
+                            ...newEmployee.fullName,
+                            lastName: e.target.value,
+                          },
+                        })
+                      }
+                      className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <input
+                    type="email"
+                    required
+                    placeholder="Email (required)"
+                    value={newEmployee.email}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, email: e.target.value })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Contact Number */}
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contact Number (required)"
+                    value={newEmployee.contactNumber}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        contactNumber: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Address */}
+                  <textarea
+                    placeholder="Address (required)"
+                    required
+                    value={newEmployee.address}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        address: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  ></textarea>
+
+                  {/* Birth Date */}
+                  <input
+                    type="date"
+                    placeholder="Birth Date"
+                    value={newEmployee.birthDate}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        birthDate: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Father Name */}
+                  <input
+                    type="text"
+                    placeholder="Father's Name ( optional )"
+                    value={newEmployee.fatherName}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        fatherName: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Designation */}
+                  <input
+                    type="text"
+                    placeholder="Designation ( optional )"
+                    value={newEmployee.designation}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        designation: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Gender */}
+                  <select
+                    value={newEmployee.gender}
+                    required
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, gender: e.target.value })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  >
+                    <option value="" disabled>
+                      Select Gender
+                    </option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+
+                  {/* Salary */}
+                  <input
+                    type="number"
+                    required
+                    placeholder="Salary (required)"
+                    value={newEmployee.salary}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, salary: e.target.value })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Education */}
+                  <input
+                    type="text"
+                    placeholder="Qualification ( required )"
+                    value={newEmployee.education}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        education: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Password */}
+                  <input
+                    type="text"
+                    required
+                    placeholder="Password for teacher login ( required )"
+                    value={newEmployee.password}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        password: e.target.value,
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+
+                  {/* Subjects */}
+                  <input
+                    type="text"
+                    placeholder="Subjects (comma separated)"
+                    value={newEmployee.subjects.join(", ")}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        subjects: e.target.value
+                          .split(",")
+                          .map((s) => s.trim()),
+                      })
+                    }
+                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                  />
+                </form>
+                {/* Buttons */}
+                <div className="flex justify-between mt-6">
                   <button
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     onClick={() => setIsModalOpen(false)}
@@ -219,9 +394,9 @@ function EmployeeList() {
                   </button>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={handleAddEmployee}
+                    onClick={handleAddTeacher}
                   >
-                    Add
+                    Add Teacher
                   </button>
                 </div>
               </div>

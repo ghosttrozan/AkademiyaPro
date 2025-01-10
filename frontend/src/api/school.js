@@ -28,7 +28,7 @@ export async function getSchool() {
     const response = await axios.get(BASE_URL.VITE_BASE_URL_SCHOOL_DETAILS, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log(response)
+    // console.log(response)
     return response.status === 200 ? response.data : false;
   } catch (error) {
     console.error(error);

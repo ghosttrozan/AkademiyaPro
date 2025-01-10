@@ -299,6 +299,14 @@ async function registerNewTeacher(req, res) {
       });
     }
 
+    const existingTeacherEmail = await teacher.findOne({ email});
+    if (existingTeacherEmail) {
+      return res.status(400).json({
+        success: false,
+        msg: "A teacher with this email already exists",
+      });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 

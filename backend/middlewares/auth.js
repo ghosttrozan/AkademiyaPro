@@ -21,6 +21,7 @@ const verifyToken = async (token) => {
 
 // Middleware to verify specific roles
 const verifyRole = (role) => async (req, res, next) => {
+  console.log(req.body)
   const token = req?.headers?.authorization?.replace("Bearer ", "");
   try {
     const decodedUser = await verifyToken(token);

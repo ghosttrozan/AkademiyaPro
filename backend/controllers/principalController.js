@@ -339,15 +339,7 @@ async function registerNewTeacher(req, res) {
     return res.status(201).json({
       success: true,
       msg: "Teacher registered successfully",
-      teacher: {
-        _id: newTeacher._id,
-        fullName: newTeacher.fullName,
-        email: newTeacher.email,
-        contactNumber: newTeacher.contactNumber,
-        designation: newTeacher.designation,
-        salary: newTeacher.salary,
-        gender: newTeacher.gender,
-      },
+      teacher: newTeacher ,
       token,
     });
   } catch (error) {

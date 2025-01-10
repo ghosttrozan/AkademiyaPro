@@ -31,6 +31,10 @@ const PrincipalProfile = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleProfilePicChange = (e) => {
+    setFormData({ ...formData, profilePic: e.target.files[0] });
+  };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -82,71 +86,72 @@ const PrincipalProfile = () => {
     localStorage.removeItem("token");
     toast.info("Logged out successfully!");
     setTimeout(() => {
-      window.location.reload() // Redirect to login
+      window.location.reload(); // Redirect to login
     }, 1000);
   };
 
   return (
-    <div>
+    <div className="">
       <ToastContainer />
       <Header />
-      <div className="flex mt-6 flex-col lg:flex-row gap-10 p-10 max-w-7xl mx-auto font-poppins">
+      <div className="flex mt-24 flex-col lg:flex-row gap-8 p-6 max-w-6xl mx-auto font-poppins">
         {/* Left Section: Profile Details */}
-        <div className="lg:w-1/3 bg-gray-100 p-8 rounded-lg shadow-lg">
-          <div className="text-center">
-            <div className="w-32 h-32 bg-purple-300 rounded-full mx-auto flex items-center justify-center text-white text-5xl font-bold mb-6 shadow-md">
-              {formData.profilePic ? (
-                <img
-                  src={URL.createObjectURL(formData.profilePic)}
-                  alt="Profile"
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                formData.name.charAt(0)
-              )}
+        <div className="lg:w-1/3 bg-gray-100 p-6 rounded-lg shadow-lg flex flex-col justify-between h-full">
+          <div>
+            <div className="text-center">
+              <div className="w-24 h-24 bg-purple-300 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-md">
+                {formData.profilePic ? (
+                  <img
+                    src={URL.createObjectURL(formData.profilePic)}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  formData.name.charAt(0)
+                )}
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                {formData.name}
+              </h3>
             </div>
-            <h3 className="text-3xl font-extrabold text-gray-800 mb-4">
-              {formData.name}
-            </h3>
+            <div className="space-y-4 text-base text-gray-700">
+              <p>
+                <span className="font-semibold text-gray-900">Name:</span>{" "}
+                {formData.name}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-900">Email:</span>{" "}
+                {formData.email}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-900">Gender:</span>{" "}
+                {formData.gender}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-900">Phone:</span>{" "}
+                {formData.phone}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-900">
+                  Designation:
+                </span>{" "}
+                {formData.designation}
+              </p>
+            </div>
           </div>
-          <div className="space-y-4 text-lg text-gray-700">
-            <p>
-              <span className="font-semibold text-gray-900">Name:</span>{" "}
-              {formData.name}
-            </p>
-            <p>
-              <span className="font-semibold text-gray-900">Email:</span>{" "}
-              {formData.email}
-            </p>
-            <p>
-              <span className="font-semibold text-gray-900">Gender:</span>{" "}
-              {formData.gender}
-            </p>
-            <p>
-              <span className="font-semibold text-gray-900">Phone:</span>{" "}
-              {formData.phone}
-            </p>
-            <p>
-              <span className="font-semibold text-gray-900">Designation:</span>{" "}
-              {formData.designation}
-            </p>
-            <button
-              className="w-full mt-6 bg-red-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-red-700"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </div>
+          <button
+            className="w-full mt-8 bg-red-600 text-white py-2 rounded-lg font-semibold text-base hover:bg-red-700"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
 
-        {/* Right Section: Update Form */}
-        <div className="w-full sm:w-2/3 md:w-1/2 lg:w-2/3 bg-white p-8 rounded-lg shadow-md border">
-          <h2 className="text-4xl font-extrabold text-purple-600 mb-6">
-            Update Profile
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Right Section: Edit Profile */}
+        <div className="lg:w-2/3 bg-white p-6 rounded-lg shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-lg font-semibold text-purple-700">
+              <label className="block text-gray-700 font-medium mb-2">
                 Name
               </label>
               <input
@@ -154,12 +159,11 @@ const PrincipalProfile = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-
             <div>
-              <label className="block text-lg font-semibold text-purple-700">
+              <label className="block text-gray-700 font-medium mb-2">
                 Email
               </label>
               <input
@@ -167,32 +171,11 @@ const PrincipalProfile = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-
-            <div className="relative">
-              <label className="block text-lg font-semibold text-purple-700">
-                Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute bottom-0 text-2xl right-4 transform -translate-y-2/4 text-purple-600"
-              >
-                {showPassword ? <RxEyeOpen /> : <GoEyeClosed />}
-              </button>
-            </div>
-
             <div>
-              <label className="block text-lg font-semibold text-purple-700">
+              <label className="block text-gray-700 font-medium mb-2">
                 Phone
               </label>
               <input
@@ -200,25 +183,46 @@ const PrincipalProfile = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-
             <div>
-              <label className="block text-lg font-semibold text-purple-700">
-                Designation
+              <label className="block text-gray-700 font-medium mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+                <button
+                  type="button"
+                  className="absolute top-2 text-2xl right-3 text-gray-500"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <RxEyeOpen /> : <GoEyeClosed />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Upload Profile Picture
               </label>
               <input
-                type="text"
-                name="designation"
-                value={formData.designation}
-                onChange={handleInputChange}
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePicChange}
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-
-            <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-purple-700">
-              Update Profile
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+            >
+              Save Changes
             </button>
           </form>
         </div>

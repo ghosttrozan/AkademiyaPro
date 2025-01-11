@@ -447,7 +447,6 @@ async function getTeachersById(req, res) {
   try {
     const principalId = req.principal;
     const teacherId = req.params.id;
-
     // Validate if the Principal exists
     const Principal = await principal.findById(principalId);
     if (!Principal) {

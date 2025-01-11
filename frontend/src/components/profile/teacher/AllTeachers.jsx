@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../dashboard/Header";
 import { getAllTeacher, registerTeacher } from "../../../api/teacher";
 import { ToastContainer, toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,17 +23,17 @@ function EmployeeList() {
     subjects: [],
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
-
   useEffect(() => {
     async function getTeachers() {
       const teachers = await getAllTeacher();
       if (teachers.length > 0) {
-        console.log("teachers Data : " , teachers)
+        console.log("teachers Data : ", teachers);
         setEmployees(teachers);
       }
     }
@@ -46,23 +47,43 @@ function EmployeeList() {
   };
 
   const handleAddTeacher = async () => {
-    if (newEmployee.fullName.firstName &&  newEmployee.address && newEmployee.contactNumber && newEmployee.gender && newEmployee.password && newEmployee.salary) {
+    if (
+      newEmployee.fullName.firstName &&
+      newEmployee.address &&
+      newEmployee.contactNumber &&
+      newEmployee.gender &&
+      newEmployee.password &&
+      newEmployee.salary
+    ) {
+      const newTeacher = await registerTeacher(newEmployee);
 
-      const newTeacher = await registerTeacher(newEmployee)
-
-      if(newTeacher?.success){
-        setEmployees((prev) => [...prev , newTeacher.teacher])
-        toast.success(newTeacher?.msg)
+      if (newTeacher?.success) {
+        setEmployees((prev) => [...prev, newTeacher.teacher]);
+        toast.success(newTeacher?.msg);
+        setNewEmployee({
+          birthDate: "",
+          contactNumber: "",
+          designation: "",
+          education: "",
+          email: "",
+          fatherName: "",
+          fullName: { firstName: "", lastName: "" },
+          address: "",
+          password: "",
+          education: "",
+          gender: "",
+          salary: "",
+          subjects: [],
+        });
         setIsModalOpen(false);
         return;
       }
-      if(!newTeacher?.success){
-        toast.error(newTeacher?.msg)
+      if (!newTeacher?.success) {
+        toast.error(newTeacher?.msg);
         return;
       }
-    }
-    else{
-      toast.error("Try again")
+    } else {
+      toast.error("All fields are required Try again");
     }
   };
 
@@ -119,9 +140,9 @@ function EmployeeList() {
                       {employee.fullName.firstName} {employee.fullName.lastName}
                     </h3>
                     <p className="text-xl text-gray-600 mb-2">
-                      {employee.role}
+                      {employee.designation}
                     </p>
-                    <p className="text-lg text-gray-500 mb-4">
+                    <p className="text-lg text-gray-500 mb-2">
                       {employee.email}
                     </p>
                     <p className="text-lg text-gray-500">
@@ -131,14 +152,13 @@ function EmployeeList() {
                     {/* Action Buttons */}
                     <div className="flex justify-center mt-4 space-x-4">
                       {/* View Teacher Button */}
+                      <Link to={`/teacher/${employee._id}`}>
                       <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-all duration-300"
-                        onClick={() =>
-                          alert("View Teacher functionality to be implemented")
-                        }
                       >
                         View
                       </button>
+                      </Link>
 
                       {/* Edit Button */}
                       <button
@@ -188,14 +208,17 @@ function EmployeeList() {
           {isModalOpen && (
             <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
               <div className="bg-white p-6 rounded-lg w-2/3">
-                <h2 className="text-2xl font-semibold mb-4">Add New Teacher</h2>
+                <div className="flex mb-4 justify-between w-full">
+                  <h2 className="text-2xl font-semibold">Add New Teacher</h2>
+                  <h3 className="text-red-400">*All fields are required</h3>
+                </div>
                 <form className="grid grid-cols-2 gap-4">
                   {/* Full Name */}
                   <div className="col-span-2 sm:col-span-1">
                     <input
                       type="text"
                       required
-                      placeholder="First Name (required)"
+                      placeholder="First Name"
                       value={newEmployee.fullName.firstName}
                       onChange={(e) =>
                         setNewEmployee({
@@ -212,7 +235,7 @@ function EmployeeList() {
                   <div className="col-span-2 sm:col-span-1">
                     <input
                       type="text"
-                      placeholder="Last Name (optional)"
+                      placeholder="Last Name"
                       value={newEmployee.fullName.lastName}
                       onChange={(e) =>
                         setNewEmployee({
@@ -231,7 +254,7 @@ function EmployeeList() {
                   <input
                     type="email"
                     required
-                    placeholder="Email (required)"
+                    placeholder="Email"
                     value={newEmployee.email}
                     onChange={(e) =>
                       setNewEmployee({ ...newEmployee, email: e.target.value })
@@ -243,7 +266,7 @@ function EmployeeList() {
                   <input
                     type="text"
                     required
-                    placeholder="Contact Number (required)"
+                    placeholder="Contact Number"
                     value={newEmployee.contactNumber}
                     onChange={(e) =>
                       setNewEmployee({
@@ -256,7 +279,7 @@ function EmployeeList() {
 
                   {/* Address */}
                   <textarea
-                    placeholder="Address (required)"
+                    placeholder="Address"
                     required
                     value={newEmployee.address}
                     onChange={(e) =>
@@ -269,23 +292,26 @@ function EmployeeList() {
                   ></textarea>
 
                   {/* Birth Date */}
-                  <input
-                    type="date"
-                    placeholder="Birth Date"
-                    value={newEmployee.birthDate}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        birthDate: e.target.value,
-                      })
-                    }
-                    className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
-                  />
+                  <div>
+                    <p className="text-gray-400 ml-2">date of birth : </p>
+                    <input
+                      type="date"
+                      placeholder="Birth Date"
+                      value={newEmployee.birthDate}
+                      onChange={(e) =>
+                        setNewEmployee({
+                          ...newEmployee,
+                          birthDate: e.target.value,
+                        })
+                      }
+                      className="border border-gray-300 rounded-md px-4 py-2 w-full mb-4"
+                    />
+                  </div>
 
                   {/* Father Name */}
                   <input
                     type="text"
-                    placeholder="Father's Name ( optional )"
+                    placeholder="Father's Name"
                     value={newEmployee.fatherName}
                     onChange={(e) =>
                       setNewEmployee({
@@ -299,7 +325,7 @@ function EmployeeList() {
                   {/* Designation */}
                   <input
                     type="text"
-                    placeholder="Designation ( optional )"
+                    placeholder="Designation"
                     value={newEmployee.designation}
                     onChange={(e) =>
                       setNewEmployee({
@@ -331,7 +357,7 @@ function EmployeeList() {
                   <input
                     type="number"
                     required
-                    placeholder="Salary (required)"
+                    placeholder="Salary"
                     value={newEmployee.salary}
                     onChange={(e) =>
                       setNewEmployee({ ...newEmployee, salary: e.target.value })
@@ -342,7 +368,7 @@ function EmployeeList() {
                   {/* Education */}
                   <input
                     type="text"
-                    placeholder="Qualification ( required )"
+                    placeholder="Qualification"
                     value={newEmployee.education}
                     onChange={(e) =>
                       setNewEmployee({
@@ -357,7 +383,7 @@ function EmployeeList() {
                   <input
                     type="text"
                     required
-                    placeholder="Password for teacher login ( required )"
+                    placeholder="Password for teacher login"
                     value={newEmployee.password}
                     onChange={(e) =>
                       setNewEmployee({
@@ -402,6 +428,7 @@ function EmployeeList() {
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>

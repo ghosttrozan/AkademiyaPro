@@ -16,6 +16,7 @@ export async function getAllTeacher(){
 }
 
 export async function registerTeacher(teacherData) {
+  
   const { birthDate, contactNumber, designation, education, email, fatherName, 
     fullName, address, password, gender, salary, subjects } = teacherData;
 
@@ -44,6 +45,33 @@ export async function registerTeacher(teacherData) {
     console.log("Response:", response);
 
     if (response.status == 201) {
+      return response?.data;
+    }
+
+  } catch (error) {
+    console.error("Error:", error?.response?.data || error.message);
+    return error?.response?.data || error.message
+  }
+}
+
+export async function getTeacherById(teacherId){
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication token is missing. Please log in.');
+    }
+
+     // Make the API call
+     const response = await axios.get(
+      BASE_URL.VITE_BASE_URL_GET_TEACHER + teacherId, 
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    console.log("Response:", response);
+
+    if(response.status === 200) {
       return response?.data;
     }
 

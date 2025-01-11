@@ -47,10 +47,9 @@ const teacherSchema = new mongoose.Schema({
         }
     ],
     address: {
-        street: String,
-        city: String,
-        state: String,
-        postalCode: String,
+        type: String,
+        trim: true,
+        required: true
     },
     gender: {
         type: String,

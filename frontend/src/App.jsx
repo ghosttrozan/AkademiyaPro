@@ -18,6 +18,8 @@ import { toast } from "react-toastify";
 import { setSchool } from "./features/school/schoolSlice";
 import PrincipalProfile from "./components/profile/principal/PrincipalProfile";
 import AllTeachers from "./components/profile/teacher/AllTeachers";
+import TeacherDetails from "./components/profile/teacher/TeacherDetail";
+
 
 function App() {
   return (
@@ -98,6 +100,7 @@ function AppRoutes() {
       <Route path="/school" element={<SchoolProfile />} />
       <Route path="/principal" element={<PrincipalProfile />} />
       <Route path="/all-teachers" element={<AllTeachers />} />
+      <Route path="/teacher/:id" element={<TeacherDetails/>} />
     </Routes>
   );
 }

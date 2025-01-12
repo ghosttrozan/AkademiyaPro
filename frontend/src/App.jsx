@@ -19,6 +19,7 @@ import { setSchool } from "./features/school/schoolSlice";
 import PrincipalProfile from "./components/profile/principal/PrincipalProfile";
 import AllTeachers from "./components/profile/teacher/AllTeachers";
 import TeacherDetails from "./components/profile/teacher/TeacherDetail";
+import UpdateTeacher from "./components/profile/teacher/UpdateTeacher";
 
 
 function App() {
@@ -101,6 +102,7 @@ function AppRoutes() {
       <Route path="/principal" element={<PrincipalProfile />} />
       <Route path="/all-teachers" element={<AllTeachers />} />
       <Route path="/teacher/:id" element={<TeacherDetails/>} />
+      <Route path="/update-teacher/:id" element={<UpdateTeacher/>} />
     </Routes>
   );
 }

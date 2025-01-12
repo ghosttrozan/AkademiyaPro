@@ -1,0 +1,5 @@
+{
+  "animations.CursorAnimation": true,
+  "animations.Command-Palette": "Scale",
+  "animations.Active": "Scale"
+}

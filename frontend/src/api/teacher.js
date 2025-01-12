@@ -80,3 +80,64 @@ export async function getTeacherById(teacherId){
     return error?.response?.data || error.message
   }
 }
+
+export async function updateTeacher(teacherId, teacherData){
+  try {
+    const { contactNumber, designation, education, email,
+    fullName, address, salary } = teacherData;
+
+    const { firstName , lastName } = fullName
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication token is missing. Please log in.');
+    }
+
+     // Make the API call
+     const response = await axios.put(
+      BASE_URL.VITE_BASE_URL_UPDATE_TEACHER + teacherId, 
+      {  contactNumber, designation, education, email,
+        firstName , lastName , address, salary },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    console.log("Response:", response);
+
+    if(response.status == 200) {
+      return response
+    }
+
+  } catch (error) {
+    console.error("Error:", error?.response?.data || error.message);
+    return error?.response?.data || error.message
+  }
+}
+
+export async function deleteTeacher(teacherId){
+  try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token is missing. Please log in.');
+      }
+  
+       // Make the API call
+       const response = await axios.delete(
+        BASE_URL.VITE_BASE_URL_DELETE_TEACHER + teacherId, 
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+  
+      console.log("Response:", response);
+  
+      if(response.status == 200) {
+        return response.data
+      }
+
+  } catch (error) {
+    console.error("Error:", error?.response?.data || error.message);
+    return error?.response?.data || error.message
+  }
+}

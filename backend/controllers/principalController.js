@@ -4,7 +4,7 @@ const School = require('../models/schoolSchema')
 const bcrypt = require('bcrypt')
 const {generateJWT} = require('../utils/authorizationJWT')
 const { principalRegisterSchema, updatePrincipalSchema, loginSchema } = require('../validations/principalValidation')
-const { teacherRegisterSchema } = require('../validations/teacherValidation')
+const { teacherRegisterSchema, updateTeacherSchema } = require('../validations/teacherValidation')
 
 async function registerPrincipal(req, res) {
   try {
@@ -362,18 +362,17 @@ async function registerNewTeacher(req, res) {
 
 async function deleteTeacher(req, res) {
   try {
-    const { principal } = req;
+    const principalId = req.principal;
     const { id: teacherId } = req.params;
 
     // Fetch the Principal and ensure they exist
-    const Principal = await principal.findById(principal);
+    const Principal = await principal.findById(principalId);
     if (!Principal) {
       return res.status(404).json({
         success: false,
         msg: "Principal not found",
       });
     }
-
     // Fetch the Teacher and ensure they exist
     const Teacher = await teacher.findById(teacherId);
     if (!Teacher) {
@@ -488,6 +487,106 @@ async function getTeachersById(req, res) {
   }
 }
 
+async function updateTeacher(req, res) {
+  try {
+    
+    const teacherId = req.params.id
+
+    const { error } = updateTeacherSchema.validate(req.body);
+    
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message, // Return the validation error message
+      });
+    }
+
+    const principalId = req.principal;
+
+    const { firstName, lastName , email, contactNumber, address , designation , education , salary } = req.body;
+
+    // Find the principal by ID
+    const Principal = await principal.findById(principalId);
+
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    // Find the teacher by ID 
+    const Teacher = await teacher.findById(teacherId);
+
+    if (!Teacher) {
+      return res.status(404).json({
+        success: false,
+        message: "Teacher not found"
+      });
+    }
+
+    if (Teacher.school.toString()!== Principal.school.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this teacher"
+      });
+    }
+
+    const existingTeacher = await teacher.findOne({
+      $or: [
+        { email: email },
+        { contactNumber: contactNumber }
+      ]
+    });
+    
+    if (existingTeacher._id !== existingTeacher._id) {
+      // Check which field caused the conflict
+      if (existingTeacher.email === email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists"
+        });
+      }
+      
+      if (existingTeacher.contactNumber === contactNumber) {
+        return res.status(400).json({
+          success: false,
+          message: "Contact number already exists"
+        });
+      }
+    }
+    
+
+    if (firstName) Teacher.firstName = firstName;
+    if (lastName) Teacher.lastName = lastName;
+    Teacher.fullName = {firstName: Teacher.firstName,lastName: Teacher.lastName} ;
+    if (email) Teacher.email = email;
+    if (contactNumber) Teacher.contactNumber = contactNumber;
+    if (lastName) Teacher.lastName = lastName;
+    if (address) Teacher.address = address;
+    if (designation) Teacher.designation = designation;
+    if (education) Teacher.education = education;
+    if (salary) Teacher.salary = salary;
+    
+    // Save the updated teacher
+
+    await Teacher.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Teacher updated successfully",
+      teacher: Teacher
+    });
+  } catch (error) {
+    console.error("Error updating teacher:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while updating teacher",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   registerPrincipal,
   getPrincipalById,
@@ -496,5 +595,6 @@ module.exports = {
   deleteTeacher,
   getTeachers,
   getTeachersById,
-  updatePrincipal
+  updatePrincipal,
+  updateTeacher
 }

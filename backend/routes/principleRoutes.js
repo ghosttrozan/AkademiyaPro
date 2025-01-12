@@ -8,6 +8,7 @@ const {
   getTeachers,
   getTeachersById,
   updatePrincipal,
+  updateTeacher,
 } = require('../controllers/principalController');
 const { verifyPrincipal } = require('../middlewares/auth');
 const { principalRegisterSchema } = require('../validations/principalValidation'); // Joi schema
@@ -29,5 +30,7 @@ route.delete('/remove/teacher/:id', verifyPrincipal, deleteTeacher);
 route.get('/all/teachers', verifyPrincipal, getTeachers);
 
 route.get('/teacher/:id', verifyPrincipal, getTeachersById);
+
+route.put('/teacher/update/:id', verifyPrincipal, updateTeacher);
 
 module.exports = route;

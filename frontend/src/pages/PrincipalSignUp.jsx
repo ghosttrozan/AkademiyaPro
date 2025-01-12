@@ -65,11 +65,10 @@ function PrincipalSignUp() {
 
     const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_REGISTER, data)
 
-    console.log(res)
 
-    if (res.status === 200) {
+    if (res.status === 201) {
       toast.success("Account Created Successfully")
-      localStorage.setItem('token' , res.data.principal.token)
+      localStorage.setItem('token' , res.data.principal.token.token)
       navigate('/dashboard')
       setName("")
       setContact("")

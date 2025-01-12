@@ -27,6 +27,7 @@
     "react-toastify": "^11.0.2",
     "recharts": "^2.15.0",
     "redux": "^5.0.1",
+    "styled-components": "^6.1.14",
     "vit": "^0.0.1"
   },
   "devDependencies": {

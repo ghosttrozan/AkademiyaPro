@@ -17,4 +17,15 @@ const teacherRegisterSchema = Joi.object({
   birthDate: Joi.date().optional(),
 });
 
-module.exports = { teacherRegisterSchema };
+const updateTeacherSchema = Joi.object({
+  firstName: Joi.string().required(),
+  lastName: Joi.string().optional(),
+  email: Joi.string().email().required(),
+  contactNumber: Joi.string().min(10).max(15).required(),
+  designation: Joi.string().required(),
+  salary: Joi.number().min(0).required(),
+  address: Joi.string().required(),
+  education: Joi.string().optional(),
+})
+
+module.exports = { teacherRegisterSchema , updateTeacherSchema };

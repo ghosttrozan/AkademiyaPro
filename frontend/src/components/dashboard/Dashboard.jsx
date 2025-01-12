@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Header from "./Header";
@@ -14,10 +14,10 @@ import { getSchool } from "../../api/school";
 import { setPrincipal } from "../../features/principal/principalSlice";
 import { useDispatch } from "react-redux";
 import { setSchool } from "../../features/school/schoolSlice";
+import AdvancedEducationSpinner from "../Spinner";
 
 function Dashboard() {
-  
-  
+
 
   return (
     <div>

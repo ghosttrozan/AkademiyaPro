@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,6 +20,9 @@ import PrincipalProfile from "./components/profile/principal/PrincipalProfile";
 import AllTeachers from "./components/profile/teacher/AllTeachers";
 import TeacherDetails from "./components/profile/teacher/TeacherDetail";
 import UpdateTeacher from "./components/profile/teacher/UpdateTeacher";
+import AdvancedEducationSpinner from "./components/Spinner";
+import AllClasses from "./components/profile/class/AllClasses";
+import RegisterClass from "./components/profile/class/RegisterClass";
 
 
 function App() {
@@ -34,6 +37,7 @@ function AppRoutes() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) {
@@ -92,6 +96,19 @@ function AppRoutes() {
     fetchPrincipalData();
   }, [token]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 2000); // 3 seconds
+
+    // Cleanup the timeout when the component unmounts
+    return () => clearTimeout(timer);
+  }, []);
+
+  if(loading){
+    return <div className="flex mt-[20%] items-center justify-center h-full"><AdvancedEducationSpinner /></div>
+  }
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -103,6 +120,8 @@ function AppRoutes() {
       <Route path="/all-teachers" element={<AllTeachers />} />
       <Route path="/teacher/:id" element={<TeacherDetails/>} />
       <Route path="/update-teacher/:id" element={<UpdateTeacher/>} />
+      <Route path="/all-classes" element={<AllClasses/>} />
+      <Route path="/register-class" element={<RegisterClass/>} />
     </Routes>
   );
 }

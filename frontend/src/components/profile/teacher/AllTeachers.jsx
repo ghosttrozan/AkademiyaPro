@@ -36,7 +36,7 @@ function EmployeeList() {
   useEffect(() => {
     async function getTeachers() {
       const teachers = await getAllTeacher();
-      if (teachers.length) {
+      if (teachers) {
         console.log("teachers Data : ", teachers);
         setEmployees(teachers);
         setLoading(false);
@@ -155,9 +155,9 @@ function EmployeeList() {
         </div>
       ) : (
         <div>
-        <div className="bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 min-h-screen">
+        <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] h-screen">
           <Header />
-          <div className="container mt-16 mx-auto p-8">
+          <div className="container pt-24 mx-auto p-8">
             <h1 className="text-4xl font-semibold text-white mb-8">
               Employee List
             </h1>

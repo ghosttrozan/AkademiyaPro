@@ -15,6 +15,10 @@ const principleSchema = mongoose.Schema({
     required: true,
     select:false,
   },
+  image: {  
+    type: String,
+    default: null, 
+  },
   gender: {
     type: String,
     enum: ['Male', 'Female'],

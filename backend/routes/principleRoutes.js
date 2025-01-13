@@ -13,9 +13,12 @@ const {
 const { verifyPrincipal } = require('../middlewares/auth');
 const { principalRegisterSchema } = require('../validations/principalValidation'); // Joi schema
 const { validate } = require('../middlewares/validate'); // Import the validate function
+const upload = require('../utils/multer');
 const route = express.Router();
 
-route.post('/register', validate(principalRegisterSchema), registerPrincipal); // Use validate middleware here
+const uploadMiddleware = upload.single('image');
+
+route.post('/register', uploadMiddleware , validate(principalRegisterSchema), registerPrincipal); // Use validate middleware here
 
 route.get('/verify', verifyPrincipal, getPrincipalById);
 

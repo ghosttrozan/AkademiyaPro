@@ -8,11 +8,15 @@ const principalRoutes = require('./routes/principleRoutes');
 const schoolRoutes = require('./routes/schoolRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const classRoutes = require('./routes/classRoutes');
+const { PORT } = require('../backend/config/dotenv.config')
+const fs = require('fs');
+const cloudinaryConfig = require('./config/cloudinaryConfig');
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+const port = PORT || 3000;
 
 // Validate environment variables
 if (!process.env.MONGO_URI || !process.env.PORT) {
@@ -25,6 +29,13 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  console.log(`Created directory: ${uploadDir}`);
+}
+
+cloudinaryConfig();
 // Route handlers
 const routes = [
   { path: '/api/v1/principal', route: principalRoutes },
@@ -49,8 +60,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server and connect to the database
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
   connectToDB()
     .then(() => console.log('Database connected successfully!'))
     .catch((err) => {

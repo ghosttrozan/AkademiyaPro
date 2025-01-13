@@ -5,6 +5,9 @@ const bcrypt = require('bcrypt')
 const {generateJWT} = require('../utils/authorizationJWT')
 const { principalRegisterSchema, updatePrincipalSchema, loginSchema } = require('../validations/principalValidation')
 const { teacherRegisterSchema, updateTeacherSchema } = require('../validations/teacherValidation')
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+
 
 async function registerPrincipal(req, res) {
   try {
@@ -39,6 +42,13 @@ async function registerPrincipal(req, res) {
     // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    let imageUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = result.secure_url; // Get the Cloudinary URL
+      fs.unlinkSync(req.file.path); // Remove the temporary file
+    }
+
     // Create new Principal
     const newPrincipal = await principal.create({
       name,
@@ -46,6 +56,7 @@ async function registerPrincipal(req, res) {
       gender,
       password: hashedPassword,
       contactNumber,
+      image: imageUrl, // Save the Cloudinary image URL to the database
     });
 
     // Generate JWT Token for the new Principal
@@ -67,6 +78,7 @@ async function registerPrincipal(req, res) {
         contactNumber: newPrincipal.contactNumber,
         school: newPrincipal.school,
         token,
+        image: newPrincipal.image, // Include the image URL in the response
       },
     });
   } catch (error) {
@@ -78,6 +90,7 @@ async function registerPrincipal(req, res) {
     });
   }
 }
+
 
 async function getPrincipalById(req, res) {
   try {

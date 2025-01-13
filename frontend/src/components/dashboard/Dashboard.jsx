@@ -18,6 +18,21 @@ import AdvancedEducationSpinner from "../Spinner";
 
 function Dashboard() {
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 500); 
+
+    // Cleanup the timeout when the component unmounts
+    return () => clearTimeout(timer);
+  }, []);
+
+  if(loading){
+    return <div className="flex mt-[20%] items-center justify-center h-full"><AdvancedEducationSpinner /></div>
+  }
+
 
   return (
     <div>

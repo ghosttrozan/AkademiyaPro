@@ -1,48 +1,81 @@
 const mongoose = require('mongoose');
 
 const classSchema = new mongoose.Schema({
-    className: {
-        type: String,
-        required: true,
-        trim: true,
+  className: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  section: {
+    type: String,
+    trim: true,
+  },
+  monthlyFee: {
+    type: Number,
+    required: true,
+    default: 0, // Default value for monthly fee
+  },
+  yearlyFee: {
+    type: Number,
+    required: true,
+    default: 0, // Default value for yearly fee
+  },
+  school: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'School', // Reference to the School model
+    required: true,
+  },
+  students: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Student', // Reference to the Student model
     },
-    section: {
-        type: String,
-        trim: true,
-    },
-    school: {
+  ],
+  teacher: [
+    {
+      teacherId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'School', // Reference to the School model
+        ref: 'Teacher',
         required: true,
+      },
+      teacherName: {
+        type: String,
+        required: true,
+      },
     },
-    students: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student', // Reference to the Student model
-        },
-    ],
-    subjects: [
-        {
-            type: String,
-        },
-    ],
-    createdAt: {
+  ],
+  subjects: [
+    {
+      name: {
+        type: String,
+        required: false, // subject name is optional
+      },
+    },
+  ],
+  announcements: [
+    {
+      title: { type: String, required: false }, // Title of the announcement
+      content: { type: String, required: false }, // Content of the announcement
+      date: { type: Date, default: Date.now }, // Date of the announcement
+      expireAt: {
         type: Date,
-        default: Date.now,
+        default: () => Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
+      },
     },
-    announcements: [
-        {
-            title: { type: String },
-            content: { type: String },
-            date: { type: Date, default: Date.now },
-             expireAt: { 
-            type: Date, 
-            default: () => Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
-            expires: 0 // Automatically delete when expired
-        },
-        },
-    ],    
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  status: {
+    type: String,
+    enum: ['active', 'archived'], // Define allowed values
+    default: 'active',
+  },
 });
+
+// Ensure announcements are removed after they expire
+classSchema.index({ 'announcements.expireAt': 1 }, { expireAfterSeconds: 0 });
 
 const Class = mongoose.model('Class', classSchema);
 

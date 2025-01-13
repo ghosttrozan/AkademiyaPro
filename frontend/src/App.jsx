@@ -99,7 +99,7 @@ function AppRoutes() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false)
-    }, 2000); // 3 seconds
+    }, 1000); // 3 seconds
 
     // Cleanup the timeout when the component unmounts
     return () => clearTimeout(timer);

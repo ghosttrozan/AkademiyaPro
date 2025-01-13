@@ -42,10 +42,14 @@ const teacherSchema = new mongoose.Schema({
     },
     classes: [
         {
+          classId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Class'
+          },
+          className: String,
+          section: String
         }
-    ],
+      ],      
     address: {
         type: String,
         trim: true,

@@ -110,7 +110,7 @@ function UpdateTeacher() {
     <div>
       <ToastContainer />
       <Header />
-      <div className="min-h-screen bg-gradient-to-r from-blue-300 via-blue-100 to-blue-300 pt-20 flex gap-10 justify-center mx-auto flex items-center bg-gray-100 p-4">
+      <div className="min-h-screen bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] pt-20 flex gap-10 justify-center mx-auto flex items-center bg-gray-100 p-4">
         <div className="bg-gradient-to-br from-indigo-50 via-white to-indigo-100 shadow-xl rounded-lg p-6 w-full max-w-3xl">
           <button
             onClick={() => navigate(-1)} // Navigate back to previous page

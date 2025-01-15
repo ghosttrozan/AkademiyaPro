@@ -1,30 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../../dashboard/Header';
-import { ToastContainer, toast } from 'react-toastify';
-import { useDispatch, useSelector } from 'react-redux';
-import { createSchool, updateSchool } from '../../../api/school';
-import { setSchool } from '../../../features/school/schoolSlice';
-import _ from 'lodash';
+import React, { useState, useEffect } from "react";
+import Header from "../../dashboard/Header";
+import { ToastContainer, toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { createSchool, updateSchool } from "../../../api/school";
+import { setSchool } from "../../../features/school/schoolSlice";
+import _ from "lodash";
 
 function SchoolProfile() {
-
   const principalId = useSelector((state) => state.principal._id);
-  const school = useSelector((state) => state.school)
+  // const school = useSelector((state) => state.school)
 
-  const { _id, name, logo, contactNumber, address, establishedYear, schoolType, tagLine, schoolEmail, schoolWebsite } = useSelector((state) => state.school);
+  const {
+    _id,
+    name,
+    logo,
+    contactNumber,
+    address,
+    establishedYear,
+    schoolType,
+    tagLine,
+    schoolEmail,
+    schoolWebsite,
+  } = useSelector((state) => state.school);
 
   const dispatch = useDispatch();
 
   const [profile, setProfile] = useState({
-    logo: logo || '',
-    name: name || '',
-    tagline: tagLine || '',
+    logo: logo || "",
+    name: name || "",
+    tagline: tagLine || "",
     phone: contactNumber || "XXXXXXXXXX",
     email: schoolEmail || "example@gmail.com",
     website: schoolWebsite || "www.example.com",
     address: address || "",
     schoolType: schoolType || "",
-    establishedYear: establishedYear || ""
+    establishedYear: establishedYear || "",
   });
 
   useEffect(() => {
@@ -38,10 +48,21 @@ function SchoolProfile() {
         website: schoolWebsite,
         address,
         schoolType,
-        establishedYear
+        establishedYear,
       });
     }
-  }, [_id, logo, name, tagLine, contactNumber, schoolEmail, schoolWebsite, address, schoolType, establishedYear]);
+  }, [
+    _id,
+    logo,
+    name,
+    tagLine,
+    contactNumber,
+    schoolEmail,
+    schoolWebsite,
+    address,
+    schoolType,
+    establishedYear,
+  ]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,12 +70,7 @@ function SchoolProfile() {
   };
 
   const handleLogoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setProfile({ ...profile, logo: reader.result });
-      reader.readAsDataURL(file);
-    }
+      setProfile({ ...profile, logo: e.target.files[0] });
   };
 
   const validateEmail = (email) => {
@@ -63,7 +79,7 @@ function SchoolProfile() {
   };
 
   const validateMobileNumber = (number) => {
-    const mobileRegex = /^[6-9]\d{9}$/; 
+    const mobileRegex = /^[6-9]\d{9}$/;
     return mobileRegex.test(number);
   };
 
@@ -72,7 +88,16 @@ function SchoolProfile() {
       return toast.error("Already registered");
     }
 
-    if (!profile.name || !profile.tagline || !profile.phone || !profile.email || !profile.website || !profile.address || !profile.schoolType || !profile.establishedYear) {
+    if (
+      !profile.name ||
+      !profile.tagline ||
+      !profile.phone ||
+      !profile.email ||
+      !profile.website ||
+      !profile.address ||
+      !profile.schoolType ||
+      !profile.establishedYear
+    ) {
       toast.error("All fields are required");
       return;
     }
@@ -83,27 +108,28 @@ function SchoolProfile() {
     }
 
     if (!validateMobileNumber(profile.phone)) {
-      toast.error("Invalid contact number. Please enter a 10-digit mobile number.");
+      toast.error(
+        "Invalid contact number. Please enter a 10-digit mobile number."
+      );
       return;
     }
-    const response  = await createSchool(profile, principalId);
+    const response = await createSchool(profile, principalId);
     if (response.status === 201) {
-      dispatch(setSchool(response.data.school))
+      dispatch(setSchool(response.data.school));
       toast.success(response.data.message);
-    }
-    else if (response.status === 400) {
+    } else if (response.status === 400) {
       toast.error(response.data.details[0]);
-    }
-     else {
+    } else {
       toast.error("Error Occured: " + response?.data?.details[0]);
     }
   }
 
   const handleUpdateSchool = async () => {
-    const res = await updateSchool(profile, _id); 
-    console.log(res)
+    console.log(profile);
+    const res = await updateSchool(profile, _id);
+    console.log(res);
     if (res) {
-      dispatch(setSchool(res.school))
+      dispatch(setSchool(res.school));
       toast.success("School updated successfully");
     } else {
       toast.error("Failed to update");
@@ -114,11 +140,15 @@ function SchoolProfile() {
     <div>
       <ToastContainer />
       <Header />
-      <div className="p-6 bg-gray-100 min-h-screen">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">Update Profile</h1>
+      <div className="p-6 bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] min-h-screen">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+          Update Profile
+        </h1>
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="bg-white shadow-lg rounded-lg p-6 w-full lg:w-2/3">
-            <h2 className="text-lg font-semibold text-gray-700 mb-6">School Settings</h2>
+            <h2 className="text-lg font-semibold text-gray-700 mb-6">
+              School Settings
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Logo Upload */}
               <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center">
@@ -130,7 +160,9 @@ function SchoolProfile() {
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span className="text-sm text-gray-400">Your Logo Here</span>
+                    <span className="text-sm text-gray-400">
+                      Your Logo Here
+                    </span>
                   )}
                 </div>
                 <label
@@ -242,9 +274,11 @@ function SchoolProfile() {
                   className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Select Standard</option>
-                  <option value="Middle">Middle School  (8th)</option>
+                  <option value="Middle">Middle School (8th)</option>
                   <option value="Secondary">Secondary (10th)</option>
-                  <option value="Senior Secondary">Senior Secondary (12th)</option>
+                  <option value="Senior Secondary">
+                    Senior Secondary (12th)
+                  </option>
                 </select>
               </div>
               <div>
@@ -261,10 +295,12 @@ function SchoolProfile() {
                 />
               </div>
             </div>
-            <div className='flex gap-4'>
+            <div className="flex gap-4">
               <button
                 onClick={() => handleCreateSchool(profile)}
-                className={`mt-6 ${_id ? "bg-green-300" : "bg-green-600 hover:bg-green-800"} text-white px-4 py-2 rounded-md text-sm transition`}
+                className={`mt-6 ${
+                  _id ? "bg-green-300" : "bg-green-600 hover:bg-green-800"
+                } text-white px-4 py-2 rounded-md text-sm transition`}
               >
                 Register School
               </button>
@@ -281,7 +317,9 @@ function SchoolProfile() {
 
           {/* School Preview */}
           <div className="bg-white shadow-lg rounded-lg p-6 w-full lg:w-1/3">
-            <h2 className="text-lg font-semibold text-gray-700 mb-6">School Preview</h2>
+            <h2 className="text-lg font-semibold text-gray-700 mb-6">
+              School Preview
+            </h2>
             <div className="flex flex-col items-center">
               <div className="w-24 h-24 border-2 rounded-full overflow-hidden">
                 {profile.logo ? (
@@ -296,9 +334,12 @@ function SchoolProfile() {
                   </div>
                 )}
               </div>
-              <h3 className="mt-2 text-xl font-semibold text-gray-700">{profile.name}</h3>
-              <p className="text-sm text-center break-words text-gray-500 w-full">{profile.tagline}</p>
-
+              <h3 className="mt-2 text-xl font-semibold text-gray-700">
+                {profile.name}
+              </h3>
+              <p className="text-sm text-center break-words text-gray-500 w-full">
+                {profile.tagline}
+              </p>
             </div>
             <div className="mt-4 flex flex-col gap-4 text-lg text-gray-600">
               <p>
@@ -314,10 +355,12 @@ function SchoolProfile() {
                 <strong>Address:</strong> {profile.address || "----------"}
               </p>
               <p>
-                <strong>School Standard :</strong> {profile.schoolType || "----------"}
+                <strong>School Standard :</strong>{" "}
+                {profile.schoolType || "----------"}
               </p>
               <p>
-                <strong>Established Year :</strong> {profile.establishedYear || "----------"}
+                <strong>Established Year :</strong>{" "}
+                {profile.establishedYear || "----------"}
               </p>
             </div>
           </div>

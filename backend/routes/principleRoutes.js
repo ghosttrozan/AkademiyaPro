@@ -22,7 +22,7 @@ route.post('/register', uploadMiddleware , validate(principalRegisterSchema), re
 
 route.get('/verify', verifyPrincipal, getPrincipalById);
 
-route.put('/update', verifyPrincipal, updatePrincipal);
+route.put('/update', uploadMiddleware , verifyPrincipal , updatePrincipal);
 
 route.post('/login', loginPrincipal);
 

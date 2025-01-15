@@ -1,6 +1,8 @@
 const school = require('../models/schoolSchema')
 const principal = require('../models/principalSchema');
 const { schoolSchema, updateSchoolSchema } = require('../validations/schoolValidations');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
 
 async function registerSchool(req, res) {
   try {
@@ -130,6 +132,15 @@ async function updateSchool(req, res) {
         errors: error.details.map((err) => err.message),
       });
     }
+
+    let imageUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = result.secure_url; // Get the Cloudinary URL
+      fs.unlinkSync(req.file.path); // Remove the temporary file
+    }
+    
+    updateData.logo = imageUrl
 
     // Update the school document
     const updatedSchool = await school.findByIdAndUpdate(

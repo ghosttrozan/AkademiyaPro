@@ -11,13 +11,12 @@ function AllClasses() {
   useEffect(() => {
     const fetchClasses = async () => {
       const response = await getAllClasses();
+      setLoading(false);
       if (!response?.classes) {
         console.error(response?.message);
-        
         return;
       }
       setClasses(response?.classes);
-      setLoading(false);
     };
     fetchClasses();
   }, []);

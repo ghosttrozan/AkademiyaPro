@@ -70,7 +70,7 @@ const RegisterClassForm = () => {
     <div className="">
       <ToastContainer />
       <Header />
-      <div className="flex relative justify-start mb-4">
+      <div className="flex relative justify-start">
         <Link
           to="/all-classes" // Replace with the route you want to go back to
           className="bg-blue-500 absolute top-24 left-4 text-white py-2 px-4 rounded-lg font-semibold shadow-md hover:bg-blue-600 transition duration-300"

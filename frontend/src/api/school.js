@@ -38,20 +38,51 @@ export async function getSchool() {
 
 export async function updateSchool(profile, _id) {
   const token = localStorage.getItem('token');
-  const { name, tagline, phone, email, website, address, schoolType, establishedYear } = profile;
-  
+  const {
+    name,
+    tagline,
+    phone,
+    email,
+    website,
+    address,
+    schoolType,
+    establishedYear,
+    logo,
+  } = profile;
+
   try {
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("tagLine", tagline);
+    formData.append("contactNumber", phone);
+    formData.append("schoolEmail", email);
+    formData.append("schoolWebsite", website);
+    formData.append("address", address);
+    formData.append("schoolType", schoolType);
+    formData.append("establishedYear", establishedYear);
+
+    if (logo) {
+      formData.append("image", logo); // Append the logo file
+    }
+
+    // Send the FormData with axios
     const response = await axios.put(
       `${BASE_URL.VITE_BASE_URL_SCHOOL_UPDATE}${_id}`,
-      { name, tagLine: tagline, contactNumber: phone, schoolEmail: email, schoolWebsite: website, address, schoolType, establishedYear },
-      { headers: { Authorization: `Bearer ${token}` } }
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
     if (response.status === 200) {
       return response.data;
     }
   } catch (error) {
-    console.error(error);
-    return error
+    console.error("Error updating school:", error);
+    return error;
   }
 }

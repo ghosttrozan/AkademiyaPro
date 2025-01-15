@@ -43,18 +43,35 @@ export async function verifyPrincipal() {
 }
 
 export async function updatePrincipal(data) {
-  const { name, email, password, phone, gender } = data;
+  const { name, email, password, phone, gender , profilePic } = data;
   const token = localStorage.getItem('token');
+
+  const formData = new FormData();
+
+    // Append all fields to the FormData object
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('contactNumber', phone);
+    formData.append('gender', gender);
+
+    // Append the file only if it exists
+    if (profilePic) {
+      formData.append('image', profilePic);
+    }
   
   try {
-    const response = await axios.put(
-      BASE_URL.VITE_BASE_URL_PRINCIPAL_UPDATE,
-      { name, contactNumber: phone, email, password, gender },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const response = await axios.put(BASE_URL.VITE_BASE_URL_PRINCIPAL_UPDATE, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data', // Set the correct content type
+      },
+    });
+
+    console.log("response : " , response);
 
     if (response.status === 200) {
-      localStorage.setItem('token', response.data.principal.token);
+      localStorage.setItem('token', response.data.principal.token.token);
       return response.data;
     }
     return false;

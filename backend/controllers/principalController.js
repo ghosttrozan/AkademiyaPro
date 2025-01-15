@@ -135,7 +135,6 @@ async function updatePrincipal(req, res) {
   try {
     // Validate the request body using Joi
     const { error } = updatePrincipalSchema.validate(req.body);
-    
     if (error) {
       return res.status(400).json({
         success: false,
@@ -163,6 +162,13 @@ async function updatePrincipal(req, res) {
       });
     }
 
+    let imageUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = result.secure_url; // Get the Cloudinary URL
+      fs.unlinkSync(req.file.path); // Remove the temporary file
+    }
+
     // Update fields
     if (name) existingPrincipal.name = name;
     if (email) existingPrincipal.email = email;
@@ -176,6 +182,14 @@ async function updatePrincipal(req, res) {
     // Save the updated principal
     await existingPrincipal.save();
 
+    const token = await generateJWT({
+      name: existingPrincipal.name,
+      contactNumber: existingPrincipal.contactNumber,
+      id: existingPrincipal._id,
+      school: existingPrincipal.school,
+      role: existingPrincipal.role
+    });
+
     return res.status(200).json({
       success: true,
       message: "Principal updated successfully",
@@ -188,6 +202,8 @@ async function updatePrincipal(req, res) {
         school: existingPrincipal.school,
         role: existingPrincipal.role,
         createdAt: existingPrincipal.createdAt,
+        token,
+        image: imageUrl,
       }
     });
   } catch (error) {

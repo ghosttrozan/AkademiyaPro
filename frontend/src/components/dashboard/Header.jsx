@@ -68,14 +68,14 @@ const Header = () => {
 
   return (
     <div className={`${isOpen ? "overflow-y-hiddden" : ""}`}>
-      <nav className="flex z-30 fixed w-full top-0 items-center justify-between px-6 py-4 bg-white shadow-xl">
+      <nav className="flex z-30 fixed w-full top-0 items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 shadow-xl">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
           <Link to={"/dashboard"}>
             <div className="flex items-center">
-              <h1 className="text-3xl font-semibold text-gray-800 flex items-center">
+              <h1 className="text-3xl font-semibold text-white flex items-center">
                 Academy
-                <span className="inline-block w-4 h-4 bg-blue-500 rounded-full mx-1"></span>
+                <span className="inline-block w-4 h-4 bg-blue-400 rounded-full mx-1"></span>
                 Pro
               </h1>
             </div>
@@ -88,7 +88,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-6 h-6 text-gray-600"
+              className="w-6 h-6 text-white"
             >
               <path
                 strokeLinecap="round"
@@ -105,7 +105,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-6 h-6 text-gray-600"
+              className="w-6 h-6 text-white"
             >
               <path
                 strokeLinecap="round"
@@ -123,7 +123,7 @@ const Header = () => {
             <input
               type="text"
               placeholder={textRef.current} // Using the ref for text to prevent re-renders
-              className="w-full max-w-lg px-28 py-1 border rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
+              className="w-full bg-gray-200 max-w-lg px-28 py-1 border rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
             />
           </div>
           <button>
@@ -133,7 +133,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-6 h-6 text-gray-600"
+              className="w-6 h-6 text-white"
             >
               <path
                 strokeLinecap="round"
@@ -148,13 +148,13 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           {/* Icons */}
           <div className="flex items-center space-x-3">
-            <button className="text-3xl hover:text-red-600 text-blue-600">
+            <button className="text-3xl hover:text-red-400 text-white">
               <IoChatbubbles />
             </button>
-            <button className="text-3xl hover:text-red-600 text-blue-600">
+            <button className="text-3xl hover:text-red-400 text-white">
               <IoNotifications />
             </button>
-            <button className="text-3xl hover:text-red-600 text-blue-600">
+            <button className="text-3xl hover:text-red-400 text-white">
               <Link to={"/principal"}>
                 <IoMdPerson />
               </Link>
@@ -163,13 +163,13 @@ const Header = () => {
 
           {/* Dropdown */}
           <Link to={"/school"}>
-            <div className="flex items-center space-x-2">
+            <div className="flex ml-2 items-center space-x-2">
               <img
                 src={logo} // Replace with your institute icon
                 alt="Institute"
                 className="h-8 w-8"
               />
-              <span className="text-gray-800 hover:text-green-600">{name}</span>
+              <span className="text-white text-lg hover:text-green-400">{name}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

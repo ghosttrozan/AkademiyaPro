@@ -31,7 +31,7 @@ const updatePrincipalSchema = Joi.object({
   contactNumber: Joi.string().min(10).max(15).optional(),
   gender: Joi.string().valid('Male', 'Female').optional(),
   password: Joi.string().min(6).optional(),
-});
+}).unknown();;
 
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),

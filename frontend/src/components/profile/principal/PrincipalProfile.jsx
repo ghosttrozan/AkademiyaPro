@@ -10,9 +10,11 @@ import Header from "../../dashboard/Header";
 
 const PrincipalProfile = () => {
   const dispatch = useDispatch();
-  const { _id, name, email, contactNumber, gender } = useSelector(
+  const { _id, name, email, contactNumber, gender , image } = useSelector(
     (state) => state.principal
   );
+
+  console.log(image)
 
   const [formData, setFormData] = useState({
     name,
@@ -21,7 +23,7 @@ const PrincipalProfile = () => {
     phone: contactNumber,
     designation: "Principal",
     gender,
-    profilePic: null,
+    profilePic: image,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -91,23 +93,23 @@ const PrincipalProfile = () => {
   };
 
   return (
-    <div className="">
+    <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] h-screen">
       <ToastContainer />
       <Header />
-      <div className="flex mt-24 flex-col lg:flex-row gap-8 p-6 max-w-6xl mx-auto font-poppins">
+      <div className="flex pt-24 flex-col lg:flex-row gap-8 p-6 max-w-6xl mx-auto font-poppins">
         {/* Left Section: Profile Details */}
         <div className="lg:w-1/3 bg-gray-100 p-6 rounded-lg shadow-lg flex flex-col justify-between h-full">
           <div>
             <div className="text-center">
-              <div className="w-24 h-24 bg-purple-300 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-md">
+              <div className="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-md">
                 {formData.profilePic ? (
                   <img
-                    src={URL.createObjectURL(formData.profilePic)}
+                    src={formData.profilePic}
                     alt="Profile"
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  formData.name.charAt(0)
+                  <img src={image} alt="" />
                 )}
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">

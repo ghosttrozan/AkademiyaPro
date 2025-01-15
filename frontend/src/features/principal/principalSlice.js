@@ -7,6 +7,7 @@ const initialState = {
   email: '',
   contactNumber: '',
   gender: '',
+  image:'',
   createdAt: null, // Set to null for clarity
 };
 
@@ -15,7 +16,7 @@ const principalSlice = createSlice({
   initialState,
   reducers: {
     setPrincipal: (state, action) => {
-      const { _id, name, email, contactNumber, gender, createdAt } = action.payload;
+      const { _id, name, email, contactNumber, gender, createdAt , image } = action.payload;
 
       // Update fields dynamically or retain current values
       state._id = _id ?? state._id;
@@ -24,6 +25,7 @@ const principalSlice = createSlice({
       state.contactNumber = contactNumber ?? state.contactNumber;
       state.gender = gender ?? state.gender;
       state.createdAt = createdAt ?? state.createdAt;
+      state.image = image ?? state.image;
     },
     resetPrincipal: (state) => {
       // Reset state to initial state

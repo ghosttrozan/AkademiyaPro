@@ -8,6 +8,7 @@ const principalRoutes = require('./routes/principleRoutes');
 const schoolRoutes = require('./routes/schoolRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const classRoutes = require('./routes/classRoutes');
+const studentRoutes = require('./routes/studentRoutes')
 const { PORT } = require('../backend/config/dotenv.config')
 const fs = require('fs');
 const cloudinaryConfig = require('./config/cloudinaryConfig');
@@ -42,6 +43,7 @@ const routes = [
   { path: '/api/v1/school', route: schoolRoutes },
   { path: '/api/v1/teacher', route: teacherRoutes },
   { path: '/api/v1/classes', route: classRoutes },
+  { path: '/api/v1/student', route: studentRoutes },
 ];
 routes.forEach(({ path, route }) => app.use(path, route));
 

@@ -5,9 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSchool, updateSchool } from "../../../api/school";
 import { setSchool } from "../../../features/school/schoolSlice";
 import _ from "lodash";
+import AdvancedEducationSpinner from "../../Spinner";
 
 function SchoolProfile() {
   const principalId = useSelector((state) => state.principal._id);
+  const [loading, setLoading] = useState(false);
   // const school = useSelector((state) => state.school)
 
   const {
@@ -114,27 +116,37 @@ function SchoolProfile() {
       return;
     }
     const response = await createSchool(profile, principalId);
+    setLoading(true)
     if (response.status === 201) {
       dispatch(setSchool(response.data.school));
       toast.success(response.data.message);
+      setLoading(false);
     } else if (response.status === 400) {
+      setLoading(false);
       toast.error(response.data.details[0]);
     } else {
+      setLoading(false);
       toast.error("Error Occured: " + response?.data?.details[0]);
     }
   }
 
   const handleUpdateSchool = async () => {
-    console.log(profile);
+    setLoading(true);
     const res = await updateSchool(profile, _id);
     console.log(res);
     if (res) {
       dispatch(setSchool(res.school));
       toast.success("School updated successfully");
+      setLoading(false);
     } else {
+      setLoading(false);
       toast.error("Failed to update");
     }
   };
+
+  if(loading){
+    return <div className="flex mt-[20%] items-center justify-center h-full"><AdvancedEducationSpinner /></div>
+  }
 
   return (
     <div>

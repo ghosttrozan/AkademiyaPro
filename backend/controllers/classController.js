@@ -153,9 +153,70 @@ const getAllClasses = async (req, res) => {
   }
 };
 
+const updateClass = async (req , res) => {
+
+  try {
+    const {className , section , monthlyFee , teacher} = req.body;
+
+    const {id} = req.params
+
+    const classs = await Class.findByIdAndUpdate(id , {
+      className,
+      section,
+      monthlyFee,
+      teacher
+    }, { new: true })
+    
+    if(!classs) {
+      return res.status(404).json({
+        message: 'Class not found'
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Class updated successfully',
+      class: classs
+    })
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the class',
+      error: error.message || 'Unknown error occurred'
+    })
+  }
+}
+
+const deleteClass = async (req, res) => {
+  try {
+
+    const {id} = req.params
+
+    const classs = await Class.findByIdAndDelete(id)
+    
+    if(!classs) {
+      return res.status(404).json({
+        message: 'Class not found'
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Class delted successfully',
+    })
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the class',
+      error: error.message || 'Unknown error occurred'
+    })
+  }
+}
 
 module.exports = {
   registerClass,
   getClass,
-  getAllClasses
+  getAllClasses,
+  updateClass,
+  deleteClass
 }

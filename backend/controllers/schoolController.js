@@ -46,6 +46,15 @@ async function registerSchool(req, res) {
       });
     }
 
+    let imageUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = result.secure_url; // Get the Cloudinary URL
+      fs.unlinkSync(req.file.path); // Remove the temporary file
+    }
+
+    value.logo = imageUrl
+
     // Create a new school
     const newSchool = await school.create({
       ...value, // Use validated fields from Joi

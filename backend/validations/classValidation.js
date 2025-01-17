@@ -31,7 +31,7 @@ const validateClass = Joi.object({
     }),
     subjects: Joi.array().items(
       Joi.object({
-        name: Joi.string().optional(), // Optional name for each subject
+        name: Joi.string().optional(), 
       })
     ).optional(), // Making subjects optional
   announcements: Joi.array()

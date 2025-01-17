@@ -21,11 +21,10 @@ const verifyToken = async (token) => {
 
 // Middleware to verify specific roles
 const verifyRole = (role) => async (req, res, next) => {
-  console.log(req.body)
   const token = req?.headers?.authorization?.replace("Bearer ", "");
   try {
+    
     const decodedUser = await verifyToken(token);
-
     console.log(decodedUser)
 
     // Check for specific role and attach to request object
@@ -33,9 +32,8 @@ const verifyRole = (role) => async (req, res, next) => {
       req.principal = decodedUser.id;
     } else if (role === 'teacher' && decodedUser.role === 'Teacher') {
       req.teacher = decodedUser.id;
-    } else if (role === 'user' && decodedUser.role === 'user') {
-      req.user = decodedUser.id;
-    } else {
+    } 
+     else {
       return res.status(403).json({
         success: false,
         message: `Forbidden: You are not authorized as a ${role}`
@@ -52,9 +50,8 @@ const verifyRole = (role) => async (req, res, next) => {
   }
 };
 
-// Specific middlewares for principal, teacher, and user
+// Specific middlewares for principal, teacher
 const verifyPrincipal = verifyRole('principal');
 const verifyTeacher = verifyRole('teacher');
-const verifyUser = verifyRole('user');
 
-module.exports = { verifyPrincipal, verifyTeacher, verifyUser };
+module.exports = { verifyPrincipal, verifyTeacher };

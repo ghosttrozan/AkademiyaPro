@@ -9,7 +9,7 @@ const RegisterClassForm = () => {
   const [className, setClassName] = useState("");
   const [section, setSection] = useState("");
   const [yearlyFee, setYearlyFee] = useState("");
-  const [subjects, setSubjects] = useState([{ name: "" }]);
+  const [subjects, setSubjects] = useState([{ name: " " }]);
   const [teachers, setTeachers] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const navigate = useNavigate();
@@ -18,6 +18,12 @@ const RegisterClassForm = () => {
     // Fetch teachers for select input
     async function fetchTeachers() {
       const teacher = await getAllTeacher();
+      console.log(teacher)
+      if(teacher.length === 0){
+        toast.error("Register atleast one teacher");
+        setTimeout(() => navigate("/all-teachers"), 2000);
+        return;
+      }
       setTeachers(teacher);
     }
 
@@ -54,6 +60,7 @@ const RegisterClassForm = () => {
       teacher: [selectedTeacher],
     };
     const res = await createClass(formData);
+
     if (res?.class) {
       toast.success("Class registered successfully");
       setClassName("");
@@ -108,7 +115,7 @@ const RegisterClassForm = () => {
                 id="section"
                 type="text"
                 value={section}
-                onChange={(e) => setSection(e.target.value)}
+                onChange={(e) => setSection((e.target.value).toUpperCase())}
                 className="p-3 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:outline-none"
               />
             </div>

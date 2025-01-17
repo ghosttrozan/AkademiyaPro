@@ -1,12 +1,15 @@
 const principal = require('../models/principalSchema')
 const teacher = require('../models/teacherSchema')
 const School = require('../models/schoolSchema')
+const Class = require('../models/classSchema')
+const Student = require('../models/studentSchema')
 const bcrypt = require('bcrypt')
 const {generateJWT} = require('../utils/authorizationJWT')
 const { principalRegisterSchema, updatePrincipalSchema, loginSchema } = require('../validations/principalValidation')
 const { teacherRegisterSchema, updateTeacherSchema } = require('../validations/teacherValidation')
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const { studentValidationSchema, updateStudentValidationSchema } = require('../validations/studentValidation')
 
 
 async function registerPrincipal(req, res) {
@@ -421,9 +424,15 @@ async function deleteTeacher(req, res) {
 
     // Delete the Teacher and update the School document
     await teacher.findByIdAndDelete(teacherId);
+
     await School.findByIdAndUpdate(Teacher.school, {
       $pull: { teachers: teacherId },
     });
+
+  await Class.findByIdAndUpdate(Teacher.classes[0].classId, {
+    $pull: { teacher: { teacherId: teacherId } },
+  },
+  { new: true } );
 
     return res.status(200).json({
       success: true,
@@ -616,6 +625,298 @@ async function updateTeacher(req, res) {
   }
 }
 
+async function registerStudent(req, res) {
+  try {
+    const { error } = studentValidationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message, // Return the validation error message
+      });
+    }
+
+    const principalId = req.principal;
+
+    const Principal = await principal.findById(principalId);
+
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    const { firstName, lastName, gender, dateOfBirth, classId, contactInfo, profilePic, parentContact , address } = req.body;
+
+    const findClass = await Class.findById(classId);
+
+    if (!findClass) {
+      return res.status(404).json({
+        success: false,
+        message: "Class not found"
+      });
+    }
+
+    const findSchool = await School.findById(Principal.school);
+
+    if (!findSchool) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found"
+      });
+    }
+
+    const student = new Student({
+      firstName,
+      lastName,
+      gender,
+      dateOfBirth,
+      classId,
+      contactInfo,
+      profilePic,
+      parentContact,
+      address,
+      school : Principal.school
+    });
+
+
+    await student.save();
+
+    findClass.students.push(student._id);
+    findSchool.students.push(student._id);
+
+    await findClass.save();
+    await findSchool.save();
+
+    // Add a success response
+    return res.status(201).json({
+      success: true,
+      message: "Student registered successfully",
+      student,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while registering student",
+      error: error.message,
+    });
+  }
+}
+
+async function updateStudent(req , res){
+
+  try {
+    
+    const studentId = req.params.id
+
+    const { error } = updateStudentValidationSchema.validate(req.body);
+    
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message, // Return the validation error message
+      });
+    }
+
+    const principalId = req.principal;
+
+    const {  firstName, lastName, gender, dateOfBirth, classId, contactInfo, profilePic, parentContact , address } = req.body;
+
+    // Find the principal by ID
+    const Principal = await principal.findById(principalId);
+
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    // Find the teacher by ID 
+    const Updatestudent = await Student.findById(studentId);
+
+    if (!Updatestudent) {
+      return res.status(404).json({
+        success: false,
+        message: "student not found"
+      });
+    }
+
+    if (Updatestudent.school.toString()!== Principal.school.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this teacher"
+      });
+    }
+    
+
+    if (firstName) Updatestudent.firstName = firstName;
+    if (lastName) Updatestudent.lastName = lastName;
+    if (contactInfo) Updatestudent.contactInfo = contactInfo;
+    if (gender) Updatestudent.gender = gender;
+    if (dateOfBirth) Updatestudent.dateOfBirth = dateOfBirth;
+    if (classId) Updatestudent.classId = classId;
+    if (profilePic) Updatestudent.profilePic = profilePic;
+    if (parentContact) Updatestudent.parentContact = parentContact;
+    if (address) Updatestudent.address = address;
+    
+    // Save the updated teacher
+
+    await Updatestudent.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Student updated successfully",
+      student: Updatestudent
+    });
+  } catch (error) {
+    console.error("Error updating student:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while updating student",
+      error: error.message,
+    });
+  }
+
+}
+
+async function deleteStudent(req , res){
+  try {
+    
+    const studentId = req.params.id
+    const principalId = req.principal;
+
+    const Principal = await principal.findById(principalId);
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    if (student.school.toString() !== Principal.school.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this student"
+      });
+    }
+
+    // Remove student from class
+    const classDoc = await Class.findById(student.classId);
+    if (classDoc) {
+      classDoc.students = classDoc.students.filter(id => id.toString() !== studentId);
+      await classDoc.save();
+    }
+
+    // Remove student from school
+    const school = await School.findById(student.school);
+    if (school) {
+      school.students = school.students.filter(id => id.toString() !== studentId);
+      await school.save();
+    }
+
+    // Delete the student
+    await Student.findByIdAndDelete(studentId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Student deleted successfully and removed from class and school"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while deleting student",
+      error: error.message,
+    })
+  }
+}
+
+async function getAllStudents(req, res) {
+  try {
+    const principalId = req.principal;
+
+    // Find the principal and verify they exist
+    const Principal = await principal.findById(principalId);
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    // Get all students for this principal's school
+    const students = await Student.find({ school: Principal.school })
+
+    return res.status(200).json({
+      success: true,
+      count: students.length,
+      students
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching students",
+      error: error.message
+    });
+  }
+}
+
+async function getAllStudentByClass(req, res) {
+  try {
+    const principalId = req.principal;
+    const classId = req.params.id;
+
+    // Find the principal and verify they exist
+    const Principal = await principal.findById(principalId);
+    if (!Principal) {
+      return res.status(404).json({
+        success: false,
+        message: "Principal not found"
+      });
+    }
+
+    // Find the class and verify it exists
+    const findClass = await Class.findById(classId);
+    if (!findClass) {
+      return res.status(404).json({
+        success: false,
+        message: "Class not found"
+      });
+    }
+
+    // Get all students for this class
+    const students = await Student.find({ 
+      school: Principal.school,
+      classId: classId 
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: students.length,
+      students
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching students by class",
+      error: error.message
+    });
+  }
+}
+
+
 module.exports = {
   registerPrincipal,
   getPrincipalById,
@@ -625,5 +926,10 @@ module.exports = {
   getTeachers,
   getTeachersById,
   updatePrincipal,
-  updateTeacher
+  updateTeacher,
+  registerStudent,
+  updateStudent,
+  deleteStudent,
+  getAllStudents,
+  getAllStudentByClass
 }

@@ -74,7 +74,7 @@ const Header = () => {
           <Link to={"/dashboard"}>
             <div className="flex items-center">
               <h1 className="text-3xl font-semibold text-white flex items-center">
-                Academy
+                Akademiya
                 <span className="inline-block w-4 h-4 bg-blue-400 rounded-full mx-1"></span>
                 Pro
               </h1>
@@ -123,7 +123,7 @@ const Header = () => {
             <input
               type="text"
               placeholder={textRef.current} // Using the ref for text to prevent re-renders
-              className="w-full bg-gray-200 max-w-lg px-28 py-1 border rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
+              className="w-full bg-gray-100 max-w-lg px-28 py-1 border rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
             />
           </div>
           <button>
@@ -167,7 +167,7 @@ const Header = () => {
               <img
                 src={logo} // Replace with your institute icon
                 alt="Institute"
-                className="h-8 w-8"
+                className="h-8 rounded-full w-8"
               />
               <span className="text-white text-lg hover:text-green-400">{name}</span>
               <svg
@@ -176,7 +176,7 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-4 h-4 text-gray-600"
+                className="w-6 h-6 text-white "
               >
                 <path
                   strokeLinecap="round"

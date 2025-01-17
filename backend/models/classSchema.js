@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const classSchema = new mongoose.Schema({
+
   className: {
     type: String,
     required: true,
@@ -19,6 +20,11 @@ const classSchema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 0, // Default value for yearly fee
+  },
+  feeDetails: {
+    installmentCount: { type: Number, default: 1 }, // Number of installments allowed
+    lateFee: { type: Number, default: 0 }, // Late fee penalty
+    dueDate: { type: Date }, // Due date for fees
   },
   school: {
     type: mongoose.Schema.Types.ObjectId,
@@ -48,7 +54,9 @@ const classSchema = new mongoose.Schema({
     {
       name: {
         type: String,
-        required: false, // subject name is optional
+        required: false, // Subject name is optional
+        trim: true, // Trim whitespace
+        default: '', // Allow empty strings by default
       },
     },
   ],

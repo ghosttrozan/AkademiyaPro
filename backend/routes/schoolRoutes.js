@@ -6,7 +6,7 @@ const upload = require('../utils/multer');
 
 const uploadMiddleware = upload.single('image');
 
-route.post('/register' , verifyPrincipal , registerSchool)
+route.post('/register' , uploadMiddleware , verifyPrincipal , registerSchool)
 
 route.get('/detail' , verifyPrincipal , getSchoolById)
 

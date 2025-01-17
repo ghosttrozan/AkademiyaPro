@@ -57,7 +57,6 @@ const schoolSchema = new mongoose.Schema({
   },
   logo: {
     type: String,
-    required: true,
     default: null,
   }
 });

@@ -8,7 +8,7 @@ import {
 import PrincipalSignUp from "./pages/PrincipalSignUp";
 import Dashboard from "./components/dashboard/Dashboard";
 import PrincipalSignIn from "./pages/PrincipalSignIn";
-import LandingPage from "./components/LandingPage";
+import LandingPage from "./components/Landing/LandingPage";
 import SchoolProfile from "./components/profile/school/SchoolProfile";
 import { useDispatch } from "react-redux";
 import { verifyPrincipal } from "./api/authentication";

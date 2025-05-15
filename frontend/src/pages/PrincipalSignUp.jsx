@@ -1,172 +1,233 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import { FaGoogle, FaMicrosoft, FaCheck } from 'react-icons/fa'
 
 function PrincipalSignUp() {
-
-  const [name , setName] = useState("")
-  const [email , setEmail] = useState("")
-  const [contact , setContact] = useState("")
-  const [password , setPassword] = useState("")
-  const [gender, setGender] = useState("")
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    contactNumber: '',
+    password: '',
+    gender: '',
+    street:'',
+    city:'',
+    state:'',
+    postalCode:''
+  })
+  const [agreeTC, setAgreeTC] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState({})
   const navigate = useNavigate()
-  const [agreeTC , setagreeTC] = useState(false)
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
-    return emailRegex.test(email);
-  };
+  const validate = {
+    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+    contactNumber: (number) => /^[6-9]\d{9}$/.test(number),
+    password: (password) => 
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(password),
+  }
 
-  const validateMobileNumber = (number) => {
-    // Regex for 10-digit mobile numbers (adjust based on country)
-    const mobileRegex = /^[6-9]\d{9}$/; // For India: starts with 6-9 and has 10 digits.
-    return mobileRegex.test(number);
-  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+  }
 
-
-  const validatePassword = (password) => {
-    // Strong password criteria: Minimum 8 characters, includes uppercase, lowercase, digit, and special character.
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-    return passwordRegex.test(password);
-  };
-  
- async function handleSubmit(e){
-
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
+    const newErrors = {}
 
     if (!agreeTC) {
-      toast.error("Accept Condition")
+      toast.error('Please accept terms & conditions')
       return
     }
 
-    if(!validateEmail(email)){
-      toast.error("Invalid Email")
-      return;
+    Object.entries(formData).forEach(([key, value]) => {
+      if (!value) newErrors[key] = 'This field is required'
+    })
+
+    if (!validate.email(formData.email)) newErrors.email = 'Invalid email address'
+    if (!validate.contactNumber(formData.contactNumber)) newErrors.contactNumber = 'Invalid mobile number'
+    if (!validate.password(formData.password)) newErrors.password = 'Password must contain: 8+ chars, uppercase, lowercase, number, and special character'
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      setIsLoading(false)
+      return
     }
 
-    if(!validatePassword(password)){
-      toast.error("Invalid password. Please creat a strong password with at least 8 characters, including uppercase, lowercase, digit, and special character.")
-      return;
+    try {
+      const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_REGISTER, {
+        ...formData
+      })
+
+      if (res.status === 201) {
+        localStorage.setItem('token', res.data.principal.token.token)
+        toast.success('Account created successfully! Redirecting...')
+        setTimeout(() => navigate('/dashboard'), 2000)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.response?.data?.error || 'Registration failed')
+    } finally {
+      setIsLoading(false)
     }
-
-    if(!validateMobileNumber(contact)){
-      toast.error("Invalid contact number. Please enter a 10-digit mobile number.")
-      return;
-    }
-
-    const data = {
-      name,
-      email,
-      contactNumber : contact,
-      password,
-      gender
-    }
-
-    const res = await axios.post(import.meta.env.VITE_BASE_URL_PRINCIPAL_REGISTER, data)
-
-
-    if (res.status === 201) {
-      toast.success("Account Created Successfully")
-      localStorage.setItem('token' , res.data.principal.token.token)
-      navigate('/dashboard')
-      setName("")
-      setContact("")
-      setEmail("")
-      setPassword("")
-      setGender("")
-    } else {
-      toast.error('Failed to sign in account. Please try again.')
-    }
-
-    
   }
-  
 
   return (
-    <div className="flex h-screen">
-      <ToastContainer />
-      {/* Left Section */}
-      <div className="flex-1 bg-blue-900 text-white p-10 flex flex-col justify-center items-center">
-        <h1 className="text-2xl mb-5">School Management System</h1>
-        <h2 className="text-xl mb-5">Register your account</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-6xl"
+      >
+        <div className="flex flex-col md:flex-row">
+          {/* Left Section */}
+          <div className="w-full md:w-1/2 p-8 md:p-12">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Create School Account
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Start managing your school operations efficiently
+              </p>
+            </div>
 
-        <form onSubmit={(e) => handleSubmit(e)} className="w-full max-w-sm flex flex-col gap-3">
-          {/* input for name email pass contact and gender */}
-          <input 
-            type="name" 
-            onChange={(e)=> setName(e.target.value)}
-            value={name}
-            placeholder="Your Name *" 
-            className="p-3 text-lg text-black rounded border border-gray-300"
-            required 
-          />
-          <input 
-            type="email" 
-            onChange={(e)=> setEmail(e.target.value)}
-            value={email}
-            placeholder="Your Email *" 
-            className="p-3 text-lg text-black rounded border border-gray-300"
-            required 
-          />
-          
-          <input 
-            type="number" 
-            placeholder="Your Contact No. *" 
-            onChange={(e)=> setContact(e.target.value)}
-            value={contact}
-            className="p-3 text-lg text-black rounded border border-gray-300"
-            required 
-          />
-          {/* for gender */}
-          <select 
-            className="p-3 text-lg rounded border text-gray-700 border-gray-300" 
-            name='select'
-            value={gender}
-            onChange={(e)=> setGender(e.target.value) }
-            required
-          >
-            <option value="" disabled>Select Gender *</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-          <input 
-            type="password" 
-            placeholder="Choose Password *" 
-            onChange={(e)=> setPassword(e.target.value)}
-            value={password}
-            className="p-3 text-lg rounded border text-gray-700 border-gray-300"
-            required 
-          />
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {['name', 'email', 'contactNumber', 'password', 'street', 'city', 'state', 'postalCode'].map((field) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                    {field.replace('_', ' ')}
+                  </label>
+                  <input
+                    name={field}
+                    type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                    value={formData[field]}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 rounded-lg border ${
+                      errors[field] ? 'border-red-500' : 'border-gray-300'
+                    } focus:ring-2 focus:ring-blue-500 transition-all`}
+                    placeholder={`Enter your ${field.replace('_', ' ')}`}
+                  />
+                  {errors[field] && (
+                    <p className="text-red-500 text-sm mt-1">{errors[field]}</p>
+                  )}
+                </div>
+              ))}
 
-          <div className="flex items-center mt-3">
-            <label className="relative inline-block w-10 h-6">
-              <input type="checkbox" className="sr-only" />
-              <div className="w-full h-full bg-gray-300 rounded-full shadow-inner"></div>
-              <div onClick={() => setagreeTC((prev) => !prev)} className={`absolute ${agreeTC ? "right-1 bg-blue-400" : "left-1 bg-white"} top-1 w-4 h-4  rounded-full shadow transform transition-transform duration-300 ease-in-out`}></div>
-            </label>
-            <span className="ml-3 text-sm">Accept our <a href="/terms" className="text-blue-400">Terms & Conditions</a></span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender
+                </label>
+                <div className="flex gap-4">
+                  {['Male', 'Female'].map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, gender: option }))}
+                      className={`flex-1 py-2 rounded-lg border ${
+                        formData.gender === option 
+                          ? 'border-blue-500 bg-blue-50 text-blue-600'
+                          : 'border-gray-300 hover:border-blue-300'
+                      } transition-all`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setAgreeTC(!agreeTC)}
+                  className={`w-6 h-6 rounded border-2 flex items-center justify-center mr-3 ${
+                    agreeTC 
+                      ? 'border-blue-500 bg-blue-500' 
+                      : 'border-gray-300 hover:border-blue-400'
+                  } transition-colors`}
+                >
+                  {agreeTC && <FaCheck className="text-white text-sm" />}
+                </button>
+                <span className="text-sm text-gray-600">
+                  I agree to the{' '}
+                  <a href="/terms" className="text-blue-600 hover:underline">
+                    Terms & Conditions
+                  </a>
+                </span>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isLoading}
+                className={`w-full py-3 px-6 rounded-lg font-medium text-white ${
+                  isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                } transition-all`}
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </motion.button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 bg-white text-gray-500 text-sm">OR CONTINUE WITH</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <FaGoogle className="text-red-500" />
+                  <span>Google</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <FaMicrosoft className="text-blue-500" />
+                  <span>Microsoft</span>
+                </button>
+              </div>
+
+              <p className="text-center text-gray-600 text-sm mt-6">
+                Already have an account?{' '}
+                <Link to="/signin" className="text-blue-600 font-medium hover:underline">
+                  Login here
+                </Link>
+              </p>
+            </form>
           </div>
 
-          <button type="submit" className="p-3 bg-blue-500 text-white text-lg rounded hover:bg-blue-600 transition">Sign up</button>
-        </form>
-
-        <p className="mt-5 text-sm">
-          have an account? <Link to="/signin" className="text-blue-400">Login</Link>
-        </p>
-      </div>
-
-      {/* Right Section */}
-      <div className="flex-1 bg-gray-100 p-10 flex flex-col justify-center items-center text-center">
-        <h1 className="text-3xl font-bold">Start managing <span className="text-blue-500">free</span> now!</h1>
-        <p className="mt-3 text-lg">eSkooly is a 100% free online <strong>Training</strong> management software for a lifetime with no limitations.</p>
-        <div className="mt-5">
-          {/* Add an illustration or image here */}
-          <img src="https://eskooly.com/assets/images/illustrations/mockups/landing3/signup1.png" alt="Illustration" className="w-full max-w-sm h-full" />
+          {/* Right Section */}
+          <div className="hidden md:block w-1/2 relative bg-gradient-to-b from-blue-600 to-indigo-600">
+            <img
+              src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80"
+              alt="School illustration"
+              className="w-full h-full object-cover mix-blend-overlay opacity-90"
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-white text-center">
+              <h2 className="text-2xl font-bold mb-3">Transform Your School Management</h2>
+              <p className="opacity-90">
+                Join thousands of educational institutions using our platform
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.div>
+      <ToastContainer position="top-center" autoClose={3000} />
     </div>
-  );
+  )
 }
 
 export default PrincipalSignUp

@@ -15,7 +15,7 @@ async function generateJWT(payload) {
 // Function to verify JWT token
 async function verifyJWT(token) {
   try {
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET); 
+    const decoded = await jwt.verify(token, JWT_SECRET); 
     return { success: true, decoded };
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

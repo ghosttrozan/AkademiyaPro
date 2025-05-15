@@ -23,22 +23,16 @@ async function registerPrincipal(req, res) {
       });
     }
 
-    const { name, email, password, contactNumber, gender } = req.body;
+    const { name, email, password, contactNumber, gender, street, city, postalCode, state } = req.body;
 
     // Check if email or contact number already exists
-    const existingPrincipalByEmail = await principal.findOne({ email });
-    if (existingPrincipalByEmail) {
+    const existingPrincipal = await principal.findOne({
+      $or: [{email}, {contactNumber}]
+    });
+    if (existingPrincipal) {
       return res.status(400).json({
         success: false,
-        msg: 'Email is already registered',
-      });
-    }
-
-    const existingPrincipalByContact = await principal.findOne({ contactNumber });
-    if (existingPrincipalByContact) {
-      return res.status(400).json({
-        success: false,
-        msg: 'Contact number already exists',
+        msg: 'Email or Contact Number is already registered',
       });
     }
 
@@ -59,15 +53,17 @@ async function registerPrincipal(req, res) {
       gender,
       password: hashedPassword,
       contactNumber,
-      image: imageUrl, // Save the Cloudinary image URL to the database
+      image: imageUrl,
+      address: {
+        street, city, state, postalCode
+      }
     });
 
     // Generate JWT Token for the new Principal
     const token = await generateJWT({
       name: newPrincipal.name,
-      contactNumber: newPrincipal.contactNumber,
+      email: newPrincipal.email,
       id: newPrincipal._id,
-      school: newPrincipal.school,
       role: newPrincipal.role
     });
 
@@ -80,6 +76,7 @@ async function registerPrincipal(req, res) {
         email: newPrincipal.email,
         contactNumber: newPrincipal.contactNumber,
         school: newPrincipal.school,
+        address: newPrincipal.address,
         token,
         image: newPrincipal.image, // Include the image URL in the response
       },
@@ -254,10 +251,9 @@ async function loginPrincipal(req, res) {
     // Generate JWT
     let token = await generateJWT({
       name: Principal.name,
-      contactNumber: Principal.contactNumber,
+      email: Principal.email,
       id: Principal._id,
-      school: Principal.school,
-      role: Principal.role,
+      role: Principal.role
     });
 
     // Send successful response

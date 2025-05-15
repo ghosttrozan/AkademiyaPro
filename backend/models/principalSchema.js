@@ -24,6 +24,12 @@ const principleSchema = mongoose.Schema({
     enum: ['Male', 'Female'],
     required: true
   },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    postalCode: String
+  },
   contactNumber: {
     type: String,
     required: true,
@@ -41,6 +47,9 @@ const principleSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  lastLogin: {
+    type: Date
+  }
 })
 
 module.exports = mongoose.model("Principal" , principleSchema)

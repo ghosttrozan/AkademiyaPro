@@ -30,7 +30,7 @@ function Dashboard() {
   }, []);
 
   if(loading){
-    return <div className="flex mt-[20%] items-center justify-center h-full"><AdvancedEducationSpinner /></div>
+    return <div className="flex items-center justify-center h-full"><AdvancedEducationSpinner /></div>
   }
 
 

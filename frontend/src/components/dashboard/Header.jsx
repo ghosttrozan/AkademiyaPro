@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { IoChatbubbles } from "react-icons/io5";
-import { IoNotifications } from "react-icons/io5";
+import { IoChatbubbles, IoNotifications } from "react-icons/io5";
 import { IoMdPerson } from "react-icons/io";
+import { FiSearch, FiMenu, FiMaximize, FiChevronDown } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Sidebar from "../Sidebar";
@@ -12,32 +12,35 @@ const Header = () => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  // Using useRef to hold the text input and prevent unnecessary re-renders
   const textRef = useRef(text);
-
   const { name, logo } = useSelector((state) => state.school);
 
-  // Function to toggle fullscreen
-  const toggleFullscreen = () => {
-    const element = document.documentElement; // Use document.documentElement to make the whole page fullscreen
+  // Scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
+  const toggleFullscreen = () => {
+    const element = document.documentElement;
     if (document.fullscreenElement) {
-      document.exitFullscreen(); // Exit fullscreen if already in fullscreen mode
+      document.exitFullscreen();
     } else if (element.requestFullscreen) {
-      element.requestFullscreen(); // Request fullscreen
+      element.requestFullscreen();
     } else if (element.mozRequestFullScreen) {
-      // Firefox
       element.mozRequestFullScreen();
     } else if (element.webkitRequestFullscreen) {
-      // Chrome, Safari, Opera
       element.webkitRequestFullscreen();
     } else if (element.msRequestFullscreen) {
-      // IE/Edge
       element.msRequestFullscreen();
     }
   };
@@ -46,154 +49,122 @@ const Header = () => {
     const typewriter = setInterval(() => {
       if (charIndex < placeholders[placeholderIndex].length) {
         setText((prev) => {
-          // Updating the text without directly referencing state in the loop
           const newText = prev + placeholders[placeholderIndex][charIndex];
-          textRef.current = newText; // Update the ref with the new text value
+          textRef.current = newText;
           return newText;
         });
-
         setCharIndex((prev) => prev + 1);
       } else {
         clearInterval(typewriter);
         setTimeout(() => {
           setCharIndex(0);
           setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
-          setText(""); // Clear text before next placeholder starts
-        }, 1500); // Delay before next placeholder starts
+          setText("");
+        }, 1500);
       }
     }, 100);
-
     return () => clearInterval(typewriter);
   }, [charIndex, placeholderIndex]);
 
   return (
-    <div className={`${isOpen ? "overflow-y-hiddden" : ""}`}>
-      <nav className="flex z-30 fixed w-full top-0 items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 shadow-xl">
+    <div className={`${isOpen ? "overflow-y-hidden" : ""}`}>
+      <nav
+        className={`flex z-30 fixed w-full top-0 items-center justify-between px-6 py-3 
+          bg-gray-900 shadow-lg transition-all duration-300
+          ${isScrolled ? "py-2 bg-opacity-95 backdrop-blur-sm" : "bg-opacity-100"}`}
+      >
         {/* Left Section */}
         <div className="flex items-center space-x-4">
-          <Link to={"/dashboard"}>
+          <Link to={"/dashboard"} className="flex items-center group">
             <div className="flex items-center">
-              <h1 className="text-3xl font-semibold text-white flex items-center">
-                Akademiya
-                <span className="inline-block w-4 h-4 bg-blue-400 rounded-full mx-1"></span>
-                Pro
+              <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 flex items-center group-hover:from-purple-500 group-hover:to-blue-400 transition-all duration-300">
+                <span className="mr-1">Akademiya</span>
+                <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mx-1 animate-pulse"></span>
+                <span>Pro</span>
               </h1>
             </div>
           </Link>
-          {/* Menu Icon */}
-          <button onClick={toggleSidebar} className="pl-6 block">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 5.25h16.5m-16.5 6.75h16.5m-16.5 6.75h16.5"
-              />
-            </svg>
+          
+          {/* Menu Button */}
+          <button 
+            onClick={toggleSidebar} 
+            className="p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            aria-label="Toggle menu"
+          >
+            <FiMenu className="w-5 h-5 text-gray-300" />
           </button>
-          {/* Fullscreen Icon */}
-          <button onClick={toggleFullscreen}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 9V5.25A2.25 2.25 0 016 3h3.75m6.75 0H18a2.25 2.25 0 012.25 2.25V9m0 6v3.75A2.25 2.25 0 0118 21h-3.75m-6.75 0H6a2.25 2.25 0 01-2.25-2.25V15"
-              />
-            </svg>
+          
+          {/* Fullscreen Button */}
+          <button 
+            onClick={toggleFullscreen} 
+            className="p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            aria-label="Toggle fullscreen"
+          >
+            <FiMaximize className="w-5 h-5 text-gray-300" />
           </button>
         </div>
 
-        {/* Center Section */}
-        <div className="flex items-center space-x-4">
-          {/* Search Input */}
-          <div className="flex justify-center items-center">
+        {/* Center Section - Search */}
+        <div className="flex items-center mx-4 flex-1 max-w-2xl">
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FiSearch className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
-              placeholder={textRef.current} // Using the ref for text to prevent re-renders
-              className="w-full bg-gray-100 max-w-lg px-28 py-1 border rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-300 text-gray-700 text-lg placeholder-gray-400"
+              placeholder={textRef.current}
+              className="block w-full pl-10 pr-4 py-2 rounded-xl bg-gray-800 border border-gray-700 
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                        text-gray-200 placeholder-gray-400 transition-all duration-200"
             />
           </div>
-          <button>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 10-10.61 0 7.5 7.5 0 0010.61 0z"
-              />
-            </svg>
-          </button>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Icons */}
-          <div className="flex items-center space-x-3">
-            <button className="text-3xl hover:text-red-400 text-white">
-              <IoChatbubbles />
+          {/* Action Icons */}
+          <div className="flex items-center space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-700 text-gray-300 hover:text-blue-400 transition-colors duration-200 relative">
+              <IoChatbubbles className="w-5 h-5" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <button className="text-3xl hover:text-red-400 text-white">
-              <IoNotifications />
+            
+            <button className="p-2 rounded-full hover:bg-gray-700 text-gray-300 hover:text-yellow-400 transition-colors duration-200 relative">
+              <IoNotifications className="w-5 h-5" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <button className="text-3xl hover:text-red-400 text-white">
+            
+            <button className="p-2 rounded-full hover:bg-gray-700 text-gray-300 hover:text-green-400 transition-colors duration-200">
               <Link to={"/principal"}>
-                <IoMdPerson />
+                <IoMdPerson className="w-5 h-5" />
               </Link>
             </button>
           </div>
 
-          {/* Dropdown */}
-          <Link to={"/school"}>
-            <div className="flex ml-2 items-center space-x-2">
+          {/* Profile Dropdown */}
+          <Link to={"/school"} className="group">
+            <div className="flex items-center space-x-2 pl-2 pr-3 py-1 rounded-lg hover:bg-gray-700 transition-colors duration-200">
               <img
-                src={logo} // Replace with your institute icon
+                src={logo}
                 alt="Institute"
-                className="h-8 rounded-full w-8"
+                className="h-8 w-8 rounded-full border-2 border-blue-500 object-cover"
               />
-              <span className="text-white text-lg hover:text-green-400">{name}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="w-6 h-6 text-white "
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                />
-              </svg>
+              <span className="text-gray-200 font-medium group-hover:text-blue-400 transition-colors duration-200">
+                {name}
+              </span>
+              <FiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors duration-200" />
             </div>
           </Link>
         </div>
       </nav>
+      
+      {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-20 shadow-xl transition-transform duration-500 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {isOpen ? <Sidebar /> : ""}
+        {isOpen && <Sidebar />}
       </div>
     </div>
   );

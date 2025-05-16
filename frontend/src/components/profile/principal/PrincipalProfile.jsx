@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { GoEyeClosed } from "react-icons/go";
-import { RxEyeOpen } from "react-icons/rx";
+import { GoEyeClosed, GoEye } from "react-icons/go";
+import { FiUser, FiMail, FiPhone, FiLock, FiCamera, FiSave, FiLogOut } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePrincipal } from "../../../api/authentication";
 import { setPrincipal } from "../../../features/principal/principalSlice";
@@ -10,11 +10,9 @@ import Header from "../../dashboard/Header";
 
 const PrincipalProfile = () => {
   const dispatch = useDispatch();
-  const { _id, name, email, contactNumber, gender , image } = useSelector(
+  const { _id, name, email, contactNumber, gender, image } = useSelector(
     (state) => state.principal
   );
-
-  console.log(image)
 
   const [formData, setFormData] = useState({
     name,
@@ -34,7 +32,13 @@ const PrincipalProfile = () => {
   };
 
   const handleProfilePicChange = (e) => {
-    setFormData({ ...formData, profilePic: e.target.files[0] });
+    if (e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFormData({ ...formData, profilePic: event.target.result });
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -67,41 +71,41 @@ const PrincipalProfile = () => {
       toast.error("Please enter a valid mobile number");
       return;
     }
-    if (!validatePassword(formData.password)) {
-      toast.error("Please enter a strong password");
+    if (formData.password && !validatePassword(formData.password)) {
+      toast.error("Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character");
       return;
     }
 
-    const update = await updatePrincipal(formData);
-
-    if (update) {
-      dispatch(setPrincipal(update.principal));
-      toast.success("Profile updated successfully");
-      return;
+    try {
+      const update = await updatePrincipal(formData);
+      if (update) {
+        dispatch(setPrincipal(update.principal));
+        toast.success("Profile updated successfully");
+      }
+    } catch (error) {
+      toast.error("Update failed. Please try again.");
     }
-
-    toast.error("Try again");
-    return;
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     toast.info("Logged out successfully!");
     setTimeout(() => {
-      window.location.reload(); // Redirect to login
+      window.location.reload();
     }, 1000);
   };
 
   return (
-    <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] h-screen">
-      <ToastContainer />
+    <div className="bg-gray-900 min-h-screen">
+      <ToastContainer position="top-right" autoClose={5000} theme="dark" />
       <Header />
-      <div className="flex pt-24 flex-col lg:flex-row gap-8 p-6 max-w-6xl mx-auto font-poppins">
-        {/* Left Section: Profile Details */}
-        <div className="lg:w-1/3 bg-gray-100 p-6 rounded-lg shadow-lg flex flex-col justify-between h-full">
-          <div>
-            <div className="text-center">
-              <div className="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-md">
+      
+      <div className="pt-24 p-6 max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Profile Section */}
+          <div className="lg:w-1/3 bg-gray-800 p-6 rounded-xl shadow-xl">
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative w-32 h-32 rounded-full border-2 border-gray-600 mb-6 group">
                 {formData.profilePic ? (
                   <img
                     src={formData.profilePic}
@@ -109,124 +113,136 @@ const PrincipalProfile = () => {
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  <img src={image} alt="" />
+                  <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center">
+                    <FiUser className="w-12 h-12 text-gray-400" />
+                  </div>
                 )}
+                <label className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-colors">
+                  <FiCamera className="text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePicChange}
+                    className="hidden"
+                  />
+                </label>
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                {formData.name}
-              </h3>
-            </div>
-            <div className="space-y-4 text-base text-gray-700">
-              <p>
-                <span className="font-semibold text-gray-900">Name:</span>{" "}
-                {formData.name}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Email:</span>{" "}
-                {formData.email}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Gender:</span>{" "}
-                {formData.gender}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Phone:</span>{" "}
-                {formData.phone}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">
-                  Designation:
-                </span>{" "}
-                {formData.designation}
-              </p>
-            </div>
-          </div>
-          <button
-            className="w-full mt-8 bg-red-600 text-white py-2 rounded-lg font-semibold text-base hover:bg-red-700"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
-
-        {/* Right Section: Edit Profile */}
-        <div className="lg:w-2/3 bg-white p-6 rounded-lg shadow-lg">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Phone
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-                <button
-                  type="button"
-                  className="absolute top-2 text-2xl right-3 text-gray-500"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? <RxEyeOpen /> : <GoEyeClosed />}
-                </button>
+              
+              <h3 className="text-2xl font-bold text-white mb-2">{formData.name}</h3>
+              <p className="text-gray-400 mb-6">{formData.designation}</p>
+              
+              <div className="w-full space-y-4 text-gray-300">
+                <div className="flex items-center">
+                  <FiMail className="mr-3 text-gray-400" />
+                  <span>{formData.email}</span>
+                </div>
+                <div className="flex items-center">
+                  <FiPhone className="mr-3 text-gray-400" />
+                  <span>{formData.phone || "Not provided"}</span>
+                </div>
+                <div className="flex items-center">
+                  <FiUser className="mr-3 text-gray-400" />
+                  <span>{formData.gender || "Not specified"}</span>
+                </div>
               </div>
             </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Upload Profile Picture
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProfilePicChange}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
+            
             <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors"
             >
-              Save Changes
+              <FiLogOut className="mr-2" />
+              Logout
             </button>
-          </form>
+          </div>
+
+          {/* Edit Form */}
+          <div className="lg:w-2/3 bg-gray-800 p-8 rounded-xl shadow-xl">
+            <h2 className="text-2xl font-bold text-white mb-8 border-b border-gray-700 pb-4">
+              Edit Profile
+            </h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <FiUser className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <FiMail className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <FiPhone className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  New Password
+                </label>
+                <div className="relative">
+                  <FiLock className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? <GoEyeClosed /> : <GoEye />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors"
+              >
+                <FiSave className="mr-2" />
+                Save Changes
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

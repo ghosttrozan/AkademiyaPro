@@ -142,7 +142,7 @@ export default function HighLights() {
               className="object-contain w-full h-full"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src = 'https://via.placeholder.com/80?text=Logo';
+                // e.currentTarget.src = 'https://via.placeholder.com/80?text=Logo';
               }}
             />
           </div>

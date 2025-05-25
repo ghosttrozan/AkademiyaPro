@@ -37,6 +37,19 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 cloudinaryConfig();
+
+// ... existing code ...
+
+// Open route for health check
+app.get('/open', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ... existing code ...
 // Route handlers
 const routes = [
   { path: '/api/v1/principal', route: principalRoutes },

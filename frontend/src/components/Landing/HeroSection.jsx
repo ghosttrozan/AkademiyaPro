@@ -61,6 +61,7 @@ export default function HeroSection() {
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#07ACFF] animate-text-gradient bg-gradient-to-r from-[#07ACFF] to-[#00D1FF] bg-clip-text">
               Pro
             </h2>
+            <h1 className="text-xl sm:text-xl md:text-xl font-semibold animate-pulse-slow text-yellow-400">  Beta Version</h1>
           </div>
           
           <p className="text-xl sm:text-2xl md:text-3xl leading-tight">

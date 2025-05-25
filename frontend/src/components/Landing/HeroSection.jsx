@@ -3,6 +3,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaStar } from "react-icons/fa6";
 import heroImage from "../../assets/images/hero-dark-bg.webp";
 import heroVideo from "../../assets/videos/product-video-x2.mp4"
+import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   const videoRef = useRef(null);
@@ -93,7 +94,7 @@ export default function HeroSection() {
               className="relative px-8 py-3 bg-gradient-to-r from-[#07ACFF] to-[#00D1FF] text-white font-medium rounded-lg overflow-hidden group"
               onClick={() => console.log('Get Started clicked')}
             >
-              <span className="relative z-10">GET STARTED</span>
+              <Link to={'/signup'}><span className="relative z-10">GET STARTED</span></Link>
               <span className="absolute inset-0 bg-gradient-to-r from-[#00D1FF] to-[#07ACFF] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               <span className="absolute inset-0 border-2 border-[#07ACFF] rounded-lg scale-110 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300"></span>
             </button>

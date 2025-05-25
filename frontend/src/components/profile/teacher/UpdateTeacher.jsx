@@ -96,7 +96,7 @@ function UpdateTeacher() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full w-full mt-[20%]">
+      <div className="flex items-center justify-center h-full w-full ">
         <AdvancedEducationSpinner />
       </div>
     );

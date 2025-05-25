@@ -15,20 +15,20 @@ const RegisterClassForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch teachers for select input
     async function fetchTeachers() {
       const teacher = await getAllTeacher();
-      console.log(teacher)
-      if(teacher.length === 0){
-        toast.error("Register atleast one teacher");
-        setTimeout(() => navigate("/all-teachers"), 2000);
+      console.log("Fetched Teachers:", teacher);
+      if (teacher.length==0) {
+        toast.error("Register at least one teacher");
+        setTimeout(() => navigate("/all-teachers"), 100);
         return;
       }
       setTeachers(teacher);
     }
-
+  
     fetchTeachers();
-  }, []);
+  }, [navigate]);
+  
 
   const handleAddSubject = () => {
     setSubjects([...subjects, { name: "" }]);
@@ -75,7 +75,7 @@ const RegisterClassForm = () => {
 
   return (
     <div className="">
-      <ToastContainer />
+      <ToastContainer position="top-center" autoClose={3000} />
       <Header />
       <div className="flex relative justify-start">
         <Link
@@ -86,7 +86,7 @@ const RegisterClassForm = () => {
         </Link>
       </div>
       <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] p-9 h-screen">
-        <div className="bg-white p-6 mt-20 rounded-lg shadow-xl w-full max-w-4xl mx-auto">
+        <div className="bg-white p-6 mt-16 rounded-lg shadow-xl w-full max-w-4xl mx-auto">
           <h2 className="text-3xl font-semibold mb-6 text-center">
             Register Class
           </h2>

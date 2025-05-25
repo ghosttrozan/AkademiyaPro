@@ -8,6 +8,7 @@ const studentSchema = new Schema(
     gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
     dateOfBirth: { type: Date},
     classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true }, // Reference to the Class
+    className:{ type: String, required: true},
     school: { type: Schema.Types.ObjectId, ref: 'School' , required: true }, // Reference to the School
     contactInfo: {
       phone: { type: String, required: true },

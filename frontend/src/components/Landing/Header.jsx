@@ -8,6 +8,8 @@ import { useDispatch } from "react-redux";
 import AdvancedEducationSpinner from "../Spinner";
 import { toast } from "react-toastify";
 import { setPrincipal } from "../../features/principal/principalSlice";
+import { getSchool } from "../../api/school";
+import { setSchool } from "../../features/school/schoolSlice";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,9 +69,8 @@ export default function Header() {
       try {
         // Verify Principal Token
         setLoading(true)
-        const principalData = await verifyPrincipal(token);
+        const principalData = await verifyPrincipal();
         if (!principalData) {
-          toast.error("Verification failed. Redirecting to sign-in.");
           navigate("/signin");
           return;
         }
@@ -78,7 +79,15 @@ export default function Header() {
         console.log("Principal Data:", principalData);
         dispatch(setPrincipal(principalData));
         toast.success("Login Successful!");
-        navigate("/dashboard");
+        if(principalData.school) {
+          const schoolData = await getSchool(principalData.token);
+          if (schoolData) {
+            dispatch(setSchool(schoolData.school));
+            navigate("/dashboard");
+          }
+        } else {
+          navigate("/school");
+        }
       } catch (error) {
         console.error("Error fetching principal data:", error);
         toast.error("Error verifying principal data. Please try again.");

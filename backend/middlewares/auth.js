@@ -50,8 +50,34 @@ const verifyRole = (role) => async (req, res, next) => {
   }
 };
 
+const verifyStaff = async (req, res, next) => {
+  const token = req?.headers?.authorization?.replace("Bearer ", "");
+  try {
+    const decodedUser = await verifyToken(token);
+    console.log(decodedUser)
+
+    // Check for specific role and attach to request object
+    if (decodedUser.role === 'Principal' || decodedUser.role === 'Teacher') {
+      req.Staff = decodedUser.id;
+    } 
+     else {
+      return res.status(403).json({
+        success: false,
+        message: `Forbidden: You are not authorized as a Staff`
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    return res.status(401).json({
+      success: false,
+      message: error.message || "Token verification failed"
+    });
+  }
+}
 // Specific middlewares for principal, teacher
 const verifyPrincipal = verifyRole('principal');
 const verifyTeacher = verifyRole('teacher');
 
-module.exports = { verifyPrincipal, verifyTeacher };
+module.exports = { verifyPrincipal, verifyTeacher, verifyStaff };

@@ -7,9 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { updatePrincipal } from "../../../api/authentication";
 import { setPrincipal } from "../../../features/principal/principalSlice";
 import Header from "../../dashboard/Header";
+import { useNavigate } from "react-router-dom";
 
 const PrincipalProfile = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { _id, name, email, contactNumber, gender, image } = useSelector(
     (state) => state.principal
   );
@@ -63,17 +65,23 @@ const PrincipalProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateEmail(formData.email)) {
+    if (formData.email) {
+      if (!validateEmail(formData.email)) {
       toast.error("Please enter a valid email");
       return;
     }
-    if (!validateMobileNumber(formData.phone)) {
+    }
+    if (formData.phone) {
+      if (!validateMobileNumber(formData.phone)) {
       toast.error("Please enter a valid mobile number");
       return;
     }
-    if (formData.password && !validatePassword(formData.password)) {
+    }
+    if (formData.password) {
+      if (formData.password && !validatePassword(formData.password)) {
       toast.error("Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character");
       return;
+    }
     }
 
     try {
@@ -89,15 +97,14 @@ const PrincipalProfile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    navigate("/");
+    window.location.reload();
     toast.info("Logged out successfully!");
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen">
-      <ToastContainer position="top-right" autoClose={5000} theme="dark" />
+    <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] min-h-screen">
+      <ToastContainer position="top-center" autoClose={5000} theme="dark" />
       <Header />
       
       <div className="pt-24 p-6 max-w-7xl mx-auto">

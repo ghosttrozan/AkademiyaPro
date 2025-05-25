@@ -1,6 +1,8 @@
 const Teacher = require('../models/teacherSchema')
 const bcrypt = require('bcrypt')
 const { generateJWT } = require('../utils/authorizationJWT')
+
+
 async function loginTeacher(req , res){
 
   const { contactnumber , password} = req.body

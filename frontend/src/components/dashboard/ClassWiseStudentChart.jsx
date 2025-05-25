@@ -1,78 +1,85 @@
 import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { FaChalkboardTeacher } from "react-icons/fa";
+import { BsGraphUp } from "react-icons/bs";
 
 const data = [
-  { class: "1st", students: 30 },
-  { class: "2nd", students: 25 },
-  { class: "3rd", students: 35 },
-  { class: "4th", students: 28 },
-  { class: "5th", students: 40 },
-  { class: "6th", students: 22 },
-  { class: "7th", students: 18 },
-  { class: "8th", students: 27 },
+  { class: "1st", students: 30, fill: "#5453AB" },
+  { class: "2nd", students: 25, fill: "#A1A3D9" },
+  { class: "3rd", students: 35, fill: "#6B8CF6" },
+  { class: "4th", students: 28, fill: "#FB8993" },
+  { class: "5th", students: 40, fill: "#27AE60" },
+  { class: "6th", students: 22, fill: "#F39C12" },
+  { class: "7th", students: 18, fill: "#2C3E50" },
+  { class: "8th", students: 27, fill: "#4CAF50" },
 ];
 
-// Custom colors for the bars
-const COLORS = [
-  "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#845EC2", "#D65DB1", "#FF6F91", "#FFC75F",
-];
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200">
+        <h3 className="font-bold text-gray-800">{label} Grade</h3>
+        <div className="flex items-center gap-2 text-blue-600 mt-1">
+          <FaChalkboardTeacher />
+          <span>Students: <strong>{payload[0].value}</strong></span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 const ClassWiseStudentsChart = () => {
   return (
-    <div className="chart-container mt-6" style={{ width: "70%", height: "400px" }}>
-      <h2 className="text-center text-xl font-medium text-gray-600">
-        Class-Wise Student Distribution
-      </h2>
-      <ResponsiveContainer>
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-          <XAxis
-            dataKey="class"
-            tick={{ fontSize: 14 }}
-            label={{
-              value: "Class",
-              position: "insideBottom",
-              offset: -5,
-              style: { fontWeight: "bold" },
-            }}
-          />
-          <YAxis
-            tick={{ fontSize: 14 }}
-            label={{
-              value: "Number of Students",
-              angle: -90,
-              position: "insideLeft",
-              style: { fontWeight: "bold" },
-            }}
-          />
-          <Tooltip
-            contentStyle={{ backgroundColor: "#f5f5f5", borderRadius: "5px" }}
-            itemStyle={{ color: "#333" }}
-          />
-          <Legend
-            verticalAlign="top"
-            wrapperStyle={{ fontSize: 14, fontWeight: "bold" }}
-          />
-          <Bar dataKey="students" barSize={30} radius={[10, 10, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <BsGraphUp className="text-blue-500" />
+          Class Distribution
+        </h2>
+        <div className="text-sm text-gray-500">
+          Academic Year: 2023-24
+        </div>
+      </div>
+      
+      <div className="h-[400px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={data}
+            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ECF0F1" />
+            <XAxis 
+              dataKey="class" 
+              tick={{ fill: '#7F8C8D', fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis 
+              tick={{ fill: '#7F8C8D', fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar 
+              dataKey="students" 
+              name="Students"
+              barSize={30}
+              radius={[6, 6, 0, 0]}
+              animationDuration={1500}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="mt-4 text-xs text-gray-500 flex justify-between">
+        <span>Total Students: {data.reduce((sum, item) => sum + item.students, 0)}</span>
+        <span>Average per class: {Math.round(data.reduce((sum, item) => sum + item.students, 0)/data.length)}</span>
+      </div>
     </div>
   );
 };

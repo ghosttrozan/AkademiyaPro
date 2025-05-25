@@ -1,126 +1,135 @@
 import React, { useState } from "react";
-import { FaChevronLeft } from "react-icons/fa6";
-import { FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { MdEventNote, MdSchool } from "react-icons/md";
+import { Tooltip } from "react-tooltip";
 
 const AcademicCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // List of holidays
-  const holidays = [
-    { date: "2025-01-01", name: "New Year's Day" },
-    { date: "2025-01-26", name: "Republic Day" },
-    { date: "2025-02-14", name: "Valentine's Day" },
+  
+  // Academic events data
+  const academicEvents = [
+    { date: "2025-01-01", name: "New Year's Day", type: "holiday" },
+    { date: "2025-01-26", name: "Republic Day", type: "holiday" },
+    { date: "2025-02-14", name: "Parent-Teacher Meeting", type: "meeting" },
+    { date: "2025-03-15", name: "Mid-Term Exams", type: "exam" },
+    { date: "2025-04-14", name: "School Anniversary", type: "event" },
   ];
 
-  // Function to navigate months
+  // Month navigation
   const changeMonth = (direction) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
-    setCurrentDate(newDate);
+    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + direction)));
   };
 
-  // Generate days for the current month
-  const generateDays = () => {
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-    const daysInMonth = [];
-    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-      daysInMonth.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
-    }
-
-    // Add leading empty days for alignment
-    const leadingEmptyDays = Array(firstDayOfMonth.getDay()).fill(null);
-    return [...leadingEmptyDays, ...daysInMonth];
-  };
-
-  // Check if a date is a holiday
-  const isHoliday = (date) => {
-    const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-      date.getDate()
-    ).padStart(2, "0")}`;
-    return holidays.find((holiday) => holiday.date === localDate);
-  };
-
-  // Check if a date is the current date
-  const isToday = (date) => {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
+  // Calendar generation
+  const generateCalendar = () => {
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const leadingDays = Array(firstDay.getDay()).fill(null);
+    const days = Array.from({ length: lastDay.getDate() }, (_, i) => 
+      new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1)
     );
+    return [...leadingDays, ...days];
   };
 
-  // Format the month and year
-  const formatDate = (date) => {
-    return `${date.toLocaleString("default", { month: "long" }).toUpperCase()}, ${date.getFullYear()}`;
-  };
+  // Date helpers
+  const isToday = (date) => date.toDateString() === new Date().toDateString();
+  const getEvent = (date) => academicEvents.find(e => 
+    e.date === date.toISOString().split('T')[0]
+  );
+  const formatMonth = (date) => date.toLocaleString('default', { month: 'long' }).toUpperCase();
 
   return (
-    <div className="bg-white border-2 rounded-2xl shadow-lg p-6 rounded-2xl hover:shadow-2xl mr-2 w-[29%]">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full max-w-2xl">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <MdSchool className="text-indigo-500 text-xl" />
+          <h2 className="text-xl font-semibold text-gray-800">Academic Calendar</h2>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <span>2024-2025 Academic Year</span>
+        </div>
+      </div>
+
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between mb-4 px-4">
         <button
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200"
           onClick={() => changeMonth(-1)}
+          className="p-2 hover:bg-gray-50 rounded-lg transition-colors"
         >
-          <span className="text-gray-500 text-lg"><FaChevronLeft /></span>
+          <FaChevronLeft className="text-gray-600" />
         </button>
-        <div>
-          <h2 className="text-lg font-semibold text-pink-600 text-center">{formatDate(currentDate)}</h2>
-          <p className="text-sm text-gray-500 text-center">{currentDate.toDateString().toUpperCase()}</p>
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {formatMonth(currentDate)} {currentDate.getFullYear()}
+          </h3>
+          <p className="text-sm text-gray-500">Current Session: Spring 2025</p>
         </div>
         <button
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200"
           onClick={() => changeMonth(1)}
+          className="p-2 hover:bg-gray-50 rounded-lg transition-colors"
         >
-          <span className="text-gray-500 text-lg"><FaChevronRight /></span>
+          <FaChevronRight className="text-gray-600" />
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2 text-center">
-        {/* Weekdays */}
-        {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day, index) => (
-          <div key={index} className="text-sm font-medium text-gray-400">
+      <div className="grid grid-cols-7 gap-1 mb-4">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+          <div key={day} className="text-center text-sm text-gray-500 font-medium p-2">
             {day}
           </div>
         ))}
-
-        {/* Days */}
-        {generateDays().map((day, index) => {
-          const holiday = day ? isHoliday(day) : null;
-          const today = day && isToday(day);
-
+        {generateCalendar().map((date, index) => {
+          const event = date && getEvent(date);
           return (
             <div
               key={index}
-              className={`h-10 w-10 flex flex-col items-center justify-center rounded-full ${
-                holiday
-                  ? "bg-red-100 text-red-600 border border-red-400"
-                  : today
-                  ? "bg-blue-100 text-blue-600 border border-blue-400"
-                  : day
-                  ? "text-gray-700 hover:bg-gray-100"
-                  : ""
-              }`}
+              className={`h-14 flex flex-col items-center justify-center rounded-lg border transition-all
+                ${!date ? 'bg-transparent' : 
+                  event ? `border-${event.type}-100 bg-${event.type}-50` : 
+                  isToday(date) ? 'border-blue-200 bg-blue-50' : 
+                  'border-gray-100 hover:border-blue-200'}`}
+              data-tooltip-id={event?.name}
             >
-              {day ? (
-                <div className="relative">
-                  <span className={`font-semibold ${today ? "text-blue-600" : ""}`}>{day.getDate()}</span>
-                  {holiday && (
-                    <span className="absolute top-2 text-xs text-red-600">
-                      {holiday.name}
-                    </span>
+              {date && (
+                <>
+                  <div className={`text-sm font-medium ${
+                    event ? `text-${event.type}-600` : 
+                    isToday(date) ? 'text-blue-600' : 'text-gray-700'
+                  }`}>
+                    {date.getDate()}
+                  </div>
+                  {event && (
+                    <div className={`w-2 h-2 rounded-full bg-${event.type}-500`} />
                   )}
-                </div>
-              ) : (
-                ""
+                  <Tooltip id={event?.name} className="z-50">
+                    <div className="p-2 bg-white shadow-lg rounded border">
+                      <MdEventNote className="inline mr-2" />
+                      <span className="font-medium">{event?.name}</span>
+                    </div>
+                  </Tooltip>
+                </>
               )}
             </div>
           );
         })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 text-sm text-gray-600 mt-6 pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-blue-500 rounded-full" /> Exams
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-green-500 rounded-full" /> Holidays
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-purple-500 rounded-full" /> Meetings
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-orange-500 rounded-full" /> Events
+        </div>
       </div>
     </div>
   );

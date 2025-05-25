@@ -10,6 +10,7 @@ import { setPrincipal } from "../features/principal/principalSlice";
 import { GoEyeClosed, GoEye } from "react-icons/go";
 import { FaGoogle, FaMicrosoft } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Toaster } from "react-hot-toast";
 
 const PrincipalSignIn = () => {
   const [email, setEmail] = useState("");
@@ -55,6 +56,12 @@ const PrincipalSignIn = () => {
     try {
       const principal = await principalSignIn(email, password);
 
+      if (!principal) {
+        toast.error("Acount Not Found");
+        setIsLoading(false);
+        return;
+      }
+
       if (principal) {
         dispatch(setPrincipal(principal));
         toast.success("Welcome back!");
@@ -68,7 +75,7 @@ const PrincipalSignIn = () => {
         } else {
           navigate("/school");
         }
-      }
+      } 
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
@@ -76,8 +83,10 @@ const PrincipalSignIn = () => {
     }
   }
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <div><Toaster/></div>
       <ToastContainer position="top-center" autoClose={3000} />
       
       <motion.div 

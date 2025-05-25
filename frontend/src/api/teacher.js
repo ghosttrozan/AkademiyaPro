@@ -10,7 +10,7 @@ export async function getAllTeacher(){
     });
     return response.data.teachers;
   } catch (error) {
-    console.error(error);
+    console.error(error.response.data);
     throw new Error('Failed to fetch teachers');
   }
 }

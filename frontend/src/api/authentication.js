@@ -37,7 +37,6 @@ export async function verifyPrincipal() {
     });
     return response?.data?.principal;
   } catch (error) {
-    console.error(error);
     return false;
   }
 }
@@ -80,4 +79,3 @@ export async function updatePrincipal(data) {
     return false;
   }
 }
-

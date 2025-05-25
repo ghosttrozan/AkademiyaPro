@@ -1,16 +1,25 @@
-const principal = require('../models/principalSchema')
-const teacher = require('../models/teacherSchema')
-const School = require('../models/schoolSchema')
-const Class = require('../models/classSchema')
-const Student = require('../models/studentSchema')
-const bcrypt = require('bcrypt')
-const {generateJWT} = require('../utils/authorizationJWT')
-const { principalRegisterSchema, updatePrincipalSchema, loginSchema } = require('../validations/principalValidation')
-const { teacherRegisterSchema, updateTeacherSchema } = require('../validations/teacherValidation')
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
-const { studentValidationSchema, updateStudentValidationSchema } = require('../validations/studentValidation')
-
+const principal = require("../models/principalSchema");
+const teacher = require("../models/teacherSchema");
+const School = require("../models/schoolSchema");
+const Class = require("../models/classSchema");
+const Student = require("../models/studentSchema");
+const bcrypt = require("bcrypt");
+const { generateJWT } = require("../utils/authorizationJWT");
+const {
+  principalRegisterSchema,
+  updatePrincipalSchema,
+  loginSchema,
+} = require("../validations/principalValidation");
+const {
+  teacherRegisterSchema,
+  updateTeacherSchema,
+} = require("../validations/teacherValidation");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+const {
+  studentValidationSchema,
+  updateStudentValidationSchema,
+} = require("../validations/studentValidation");
 
 async function registerPrincipal(req, res) {
   try {
@@ -23,16 +32,26 @@ async function registerPrincipal(req, res) {
       });
     }
 
-    const { name, email, password, contactNumber, gender, street, city, postalCode, state } = req.body;
+    const {
+      name,
+      email,
+      password,
+      contactNumber,
+      gender,
+      street,
+      city,
+      postalCode,
+      state,
+    } = req.body;
 
     // Check if email or contact number already exists
     const existingPrincipal = await principal.findOne({
-      $or: [{email}, {contactNumber}]
+      $or: [{ email }, { contactNumber }],
     });
     if (existingPrincipal) {
       return res.status(400).json({
         success: false,
-        msg: 'Email or Contact Number is already registered',
+        msg: "Email or Contact Number is already registered",
       });
     }
 
@@ -55,8 +74,11 @@ async function registerPrincipal(req, res) {
       contactNumber,
       image: imageUrl,
       address: {
-        street, city, state, postalCode
-      }
+        street,
+        city,
+        state,
+        postalCode,
+      },
     });
 
     // Generate JWT Token for the new Principal
@@ -64,12 +86,12 @@ async function registerPrincipal(req, res) {
       name: newPrincipal.name,
       email: newPrincipal.email,
       id: newPrincipal._id,
-      role: newPrincipal.role
+      role: newPrincipal.role,
     });
 
     return res.status(201).json({
       success: true,
-      msg: 'Principal created successfully',
+      msg: "Principal created successfully",
       principal: {
         _id: newPrincipal._id,
         name: newPrincipal.name,
@@ -82,28 +104,27 @@ async function registerPrincipal(req, res) {
       },
     });
   } catch (error) {
-    console.error('Error creating principal:', error);
+    console.error("Error creating principal:", error);
     return res.status(500).json({
       success: false,
-      msg: 'Internal server error occurred',
+      msg: "Internal server error occurred",
       error: error.message,
     });
   }
 }
 
-
 async function getPrincipalById(req, res) {
   try {
-    const principalId = req.principal // Get principal ID from the middleware 
-    console.log(principalId)
+    const principalId = req.principal; // Get principal ID from the middleware
+    console.log(principalId);
     // Find the principal by ID
-    const foundPrincipal = await principal.findById(principalId)
+    const foundPrincipal = await principal.findById(principalId);
 
     if (!foundPrincipal) {
       return res.status(404).json({
         success: false,
         message: "Principal not found",
-      })
+      });
     }
 
     // Return the principal information
@@ -119,46 +140,28 @@ async function getPrincipalById(req, res) {
         role: foundPrincipal.role,
         createdAt: foundPrincipal.createdAt,
       },
-    })
+    });
   } catch (error) {
-    console.error("Error fetching principal:", error) // Log error for debugging
+    console.error("Error fetching principal:", error); // Log error for debugging
     return res.status(500).json({
       success: false,
       message: "Error occurred while retrieving principal",
       error: error.message,
-    })
+    });
   }
 }
 
-
 async function updatePrincipal(req, res) {
   try {
-    // Validate the request body using Joi
-    const { error } = updatePrincipalSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message, // Return the validation error message
-      });
-    }
-
     const principalId = req.principal;
     const { name, email, contactNumber, gender, password } = req.body;
-
-    if (!name && !email && !contactNumber && !gender && !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide at least one field to update"
-      });
-    }
-
     // Find the principal by ID
     const existingPrincipal = await principal.findById(principalId);
 
     if (!existingPrincipal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
@@ -187,7 +190,7 @@ async function updatePrincipal(req, res) {
       contactNumber: existingPrincipal.contactNumber,
       id: existingPrincipal._id,
       school: existingPrincipal.school,
-      role: existingPrincipal.role
+      role: existingPrincipal.role,
     });
 
     return res.status(200).json({
@@ -204,7 +207,7 @@ async function updatePrincipal(req, res) {
         createdAt: existingPrincipal.createdAt,
         token,
         image: imageUrl,
-      }
+      },
     });
   } catch (error) {
     console.error("Error updating principal:", error);
@@ -216,7 +219,6 @@ async function updatePrincipal(req, res) {
   }
 }
 
-
 async function loginPrincipal(req, res) {
   try {
     // Validate request body with Joi
@@ -227,11 +229,10 @@ async function loginPrincipal(req, res) {
         msg: error.details[0].message,
       });
     }
-
     const { email, password } = req.body;
 
     // Find principal by email
-    const Principal = await principal.findOne({ email }).select('+password');
+    const Principal = await principal.findOne({ email }).select("+password");
     if (!Principal) {
       return res.status(404).json({
         success: false,
@@ -253,7 +254,7 @@ async function loginPrincipal(req, res) {
       name: Principal.name,
       email: Principal.email,
       id: Principal._id,
-      role: Principal.role
+      role: Principal.role,
     });
 
     // Send successful response
@@ -284,7 +285,7 @@ async function registerNewTeacher(req, res) {
   try {
     const principalId = req.principal;
     // Fetch school associated with the principal
-    const { school } = await principal.findById(principalId).select('school');
+    const { school } = await principal.findById(principalId).select("school");
     if (!school) {
       return res.status(400).json({
         success: false,
@@ -327,7 +328,7 @@ async function registerNewTeacher(req, res) {
       });
     }
 
-    const existingTeacherEmail = await teacher.findOne({ email});
+    const existingTeacherEmail = await teacher.findOne({ email });
     if (existingTeacherEmail) {
       return res.status(400).json({
         success: false,
@@ -375,7 +376,7 @@ async function registerNewTeacher(req, res) {
     return res.status(201).json({
       success: true,
       msg: "Teacher registered successfully",
-      teacher: newTeacher ,
+      teacher: newTeacher,
       token,
     });
   } catch (error) {
@@ -425,10 +426,20 @@ async function deleteTeacher(req, res) {
       $pull: { teachers: teacherId },
     });
 
-  await Class.findByIdAndUpdate(Teacher.classes[0].classId, {
-    $pull: { teacher: { teacherId: teacherId } },
-  },
-  { new: true } );
+    await Class.findByIdAndUpdate(
+      Teacher.classes[0].classId,
+      {
+        $pull: {
+          teacher: {
+            teacherId: teacherId,
+            teacherName: Teacher.fullName.firstName + " " + Teacher.fullName.lastName,
+            id: Teacher._id,
+          },
+        },
+      },
+      { new: true }
+    );
+    
 
     return res.status(200).json({
       success: true,
@@ -442,7 +453,6 @@ async function deleteTeacher(req, res) {
     });
   }
 }
-
 
 async function getTeachers(req, res) {
   try {
@@ -458,7 +468,9 @@ async function getTeachers(req, res) {
     }
 
     // Fetch all teachers associated with the Principal's school, excluding passwords
-    const teachers = await teacher.find({ school: Principal.school }).select("-password");
+    const teachers = await teacher
+      .find({ school: Principal.school })
+      .select("-password");
 
     // Respond with the list of teachers
     return res.status(200).json({
@@ -474,7 +486,6 @@ async function getTeachers(req, res) {
     });
   }
 }
-
 
 async function getTeachersById(req, res) {
   try {
@@ -523,96 +534,93 @@ async function getTeachersById(req, res) {
 
 async function updateTeacher(req, res) {
   try {
-    
-    const teacherId = req.params.id
+    const teacherId = req.params.id;
+    const principalId = req.principal;
 
+    // Validate input
     const { error } = updateTeacherSchema.validate(req.body);
-    
     if (error) {
       return res.status(400).json({
         success: false,
-        message: error.details[0].message, // Return the validation error message
+        message: error.details[0].message,
       });
     }
 
-    const principalId = req.principal;
-
-    const { firstName, lastName , email, contactNumber, address , designation , education , salary } = req.body;
-
-    // Find the principal by ID
+    // Verify principal exists and get school
     const Principal = await principal.findById(principalId);
-
     if (!Principal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
-    // Find the teacher by ID 
+    // Find and verify teacher
     const Teacher = await teacher.findById(teacherId);
-
     if (!Teacher) {
       return res.status(404).json({
         success: false,
-        message: "Teacher not found"
+        message: "Teacher not found",
       });
     }
 
-    if (Teacher.school.toString()!== Principal.school.toString()) {
+    // Verify authorization
+    if (Teacher.school.toString() !== Principal.school.toString()) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to update this teacher"
+        message: "Unauthorized to update this teacher",
       });
     }
 
-    const existingTeacher = await teacher.findOne({
-      $or: [
-        { email: email },
-        { contactNumber: contactNumber }
-      ]
-    });
-    
-    if (existingTeacher._id !== existingTeacher._id) {
-      // Check which field caused the conflict
-      if (existingTeacher.email === email) {
+    // Check for duplicate email/contact
+    const { email, contactNumber } = req.body;
+    if (email || contactNumber) {
+      const existingTeacher = await teacher.findOne({
+        $and: [
+          { _id: { $ne: teacherId } },
+          { $or: [
+            ...(email ? [{ email }] : []),
+            ...(contactNumber ? [{ contactNumber }] : [])
+          ]}
+        ]
+      });
+
+      if (existingTeacher) {
+        const conflictField = existingTeacher.email === email ? 'email' : 'contact number';
         return res.status(400).json({
           success: false,
-          message: "Email already exists"
-        });
-      }
-      
-      if (existingTeacher.contactNumber === contactNumber) {
-        return res.status(400).json({
-          success: false,
-          message: "Contact number already exists"
+          message: `${conflictField} already in use`,
         });
       }
     }
-    
 
-    if (firstName) Teacher.firstName = firstName;
-    if (lastName) Teacher.lastName = lastName;
-    Teacher.fullName = {firstName: Teacher.firstName,lastName: Teacher.lastName} ;
-    if (email) Teacher.email = email;
-    if (contactNumber) Teacher.contactNumber = contactNumber;
-    if (lastName) Teacher.lastName = lastName;
-    if (address) Teacher.address = address;
-    if (designation) Teacher.designation = designation;
-    if (education) Teacher.education = education;
-    if (salary) Teacher.salary = salary;
-    
-    // Save the updated teacher
+    // Update fields
+    const updates = {};
+    if (req.body.firstName) updates['fullName.firstName'] = req.body.firstName;
+    if (req.body.lastName) updates['fullName.lastName'] = req.body.lastName;
+    if (email) updates.email = email;
+    if (contactNumber) updates.contactNumber = contactNumber;
+    // Add other fields...
 
-    await Teacher.save();
+    // Perform update
+    const updatedTeacher = await teacher.findByIdAndUpdate(
+      teacherId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    await Class.findByIdAndUpdate(
+      Teacher.classes[0].classId,
+        { teacher: { teacherName: updatedTeacher.fullName.firstName } },
+    );
 
     return res.status(200).json({
       success: true,
       message: "Teacher updated successfully",
-      teacher: Teacher
+      teacher: updatedTeacher,
     });
   } catch (error) {
-    console.error("Error updating teacher:", error);
+    console.error(`Error updating teacher :`, error);
     return res.status(500).json({
       success: false,
       message: "Error occurred while updating teacher",
@@ -622,7 +630,18 @@ async function updateTeacher(req, res) {
 }
 
 async function registerStudent(req, res) {
+  console.log(req.body);
   try {
+    try {
+      req.body.contactInfo = JSON.parse(req.body.contactInfo || "{}");
+      req.body.parentContact = JSON.parse(req.body.parentContact || "[]");
+      req.body.address = JSON.parse(req.body.address || "{}");
+    } catch (parseError) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid JSON in contactInfo / parentContact / address",
+      });
+    }
     const { error } = studentValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
@@ -638,31 +657,11 @@ async function registerStudent(req, res) {
     if (!Principal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
-    const { firstName, lastName, gender, dateOfBirth, classId, contactInfo, profilePic, parentContact , address } = req.body;
-
-    const findClass = await Class.findById(classId);
-
-    if (!findClass) {
-      return res.status(404).json({
-        success: false,
-        message: "Class not found"
-      });
-    }
-
-    const findSchool = await School.findById(Principal.school);
-
-    if (!findSchool) {
-      return res.status(404).json({
-        success: false,
-        message: "School not found"
-      });
-    }
-
-    const student = new Student({
+    const {
       firstName,
       lastName,
       gender,
@@ -672,9 +671,40 @@ async function registerStudent(req, res) {
       profilePic,
       parentContact,
       address,
-      school : Principal.school
-    });
+      className,
+    } = req.body;
 
+    const findClass = await Class.findById(classId);
+
+    if (!findClass) {
+      return res.status(404).json({
+        success: false,
+        message: "Class not found",
+      });
+    }
+
+    const findSchool = await School.findById(Principal.school);
+
+    if (!findSchool) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
+      });
+    }
+
+    const student = new Student({
+      firstName,
+      lastName,
+      gender,
+      dateOfBirth,
+      classId,
+      className,
+      contactInfo,
+      profilePic,
+      parentContact,
+      address,
+      school: Principal.school,
+    });
 
     await student.save();
 
@@ -690,7 +720,6 @@ async function registerStudent(req, res) {
       message: "Student registered successfully",
       student,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -700,94 +729,101 @@ async function registerStudent(req, res) {
   }
 }
 
-async function updateStudent(req , res){
-
+async function updateStudent(req, res) {
   try {
-    
-    const studentId = req.params.id
+    const studentId = req.params.id;
+    const principalId = req.principal;
 
+    // Initialize with empty objects if fields are missing
+    req.body.contactInfo = req.body.contactInfo || '{}';
+    req.body.parentContact = req.body.parentContact || '[]';
+    // Safe JSON parsing with error handling
+    try {
+      req.body.contactInfo = typeof req.body.contactInfo === 'string' 
+        ? JSON.parse(req.body.contactInfo) 
+        : req.body.contactInfo;
+      
+      req.body.parentContact = typeof req.body.parentContact === 'string'
+        ? JSON.parse(req.body.parentContact)
+        : req.body.parentContact;
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data format in contactInfo/parentContact/address",
+        error: parseError.message
+      });
+    }
+
+    // Validate the parsed data
     const { error } = updateStudentValidationSchema.validate(req.body);
-    
     if (error) {
       return res.status(400).json({
         success: false,
-        message: error.details[0].message, // Return the validation error message
+        message: error.details[0].message,
       });
     }
 
-    const principalId = req.principal;
-
-    const {  firstName, lastName, gender, dateOfBirth, classId, contactInfo, profilePic, parentContact , address } = req.body;
-
-    // Find the principal by ID
+    // Rest of your existing logic...
     const Principal = await principal.findById(principalId);
-
     if (!Principal) {
-      return res.status(404).json({
-        success: false,
-        message: "Principal not found"
+      return res.status(404).json({ success: false, message: "Principal not found" });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    if (student.school.toString() !== Principal.school.toString()) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Unauthorized to update this student" 
       });
     }
 
-    // Find the teacher by ID 
-    const Updatestudent = await Student.findById(studentId);
+    // Update fields
+    const updates = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      gender: req.body.gender,
+      dateOfBirth: req.body.dateOfBirth,
+      classId: req.body.classId,
+      contactInfo: req.body.contactInfo,
+      parentContact: req.body.parentContact,
+      address: req.body.address,
+      classId:student.classId,
+    };
 
-    if (!Updatestudent) {
-      return res.status(404).json({
-        success: false,
-        message: "student not found"
-      });
-    }
-
-    if (Updatestudent.school.toString()!== Principal.school.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to update this teacher"
-      });
-    }
-    
-
-    if (firstName) Updatestudent.firstName = firstName;
-    if (lastName) Updatestudent.lastName = lastName;
-    if (contactInfo) Updatestudent.contactInfo = contactInfo;
-    if (gender) Updatestudent.gender = gender;
-    if (dateOfBirth) Updatestudent.dateOfBirth = dateOfBirth;
-    if (classId) Updatestudent.classId = classId;
-    if (profilePic) Updatestudent.profilePic = profilePic;
-    if (parentContact) Updatestudent.parentContact = parentContact;
-    if (address) Updatestudent.address = address;
-    
-    // Save the updated teacher
-
-    await Updatestudent.save();
+    Object.assign(student, updates);
+    await student.save();
 
     return res.status(200).json({
       success: true,
       message: "Student updated successfully",
-      student: Updatestudent
+      student: student
     });
+
   } catch (error) {
-    console.error("Error updating student:", error);
+    console.error("Update error:", error);
     return res.status(500).json({
       success: false,
-      message: "Error occurred while updating student",
-      error: error.message,
+      message: "Server error during update",
+      error: error.message
     });
   }
-
 }
 
-async function deleteStudent(req , res){
+async function deleteStudent(req, res) {
   try {
-    
-    const studentId = req.params.id
+    const studentId = req.params.id;
     const principalId = req.principal;
 
     const Principal = await principal.findById(principalId);
     if (!Principal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
@@ -795,28 +831,32 @@ async function deleteStudent(req , res){
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: "Student not found"
+        message: "Student not found",
       });
     }
 
     if (student.school.toString() !== Principal.school.toString()) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to delete this student"
+        message: "You are not authorized to delete this student",
       });
     }
 
     // Remove student from class
     const classDoc = await Class.findById(student.classId);
     if (classDoc) {
-      classDoc.students = classDoc.students.filter(id => id.toString() !== studentId);
+      classDoc.students = classDoc.students.filter(
+        (id) => id.toString() !== studentId
+      );
       await classDoc.save();
     }
 
     // Remove student from school
     const school = await School.findById(student.school);
     if (school) {
-      school.students = school.students.filter(id => id.toString() !== studentId);
+      school.students = school.students.filter(
+        (id) => id.toString() !== studentId
+      );
       await school.save();
     }
 
@@ -825,45 +865,79 @@ async function deleteStudent(req , res){
 
     return res.status(200).json({
       success: true,
-      message: "Student deleted successfully and removed from class and school"
+      message: "Student deleted successfully and removed from class and school",
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error occurred while deleting student",
       error: error.message,
-    })
+    });
   }
 }
 
 async function getAllStudents(req, res) {
   try {
     const principalId = req.principal;
-
     // Find the principal and verify they exist
     const Principal = await principal.findById(principalId);
     if (!Principal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
     // Get all students for this principal's school
-    const students = await Student.find({ school: Principal.school })
+    const students = await Student.find({ school: Principal.school });
 
     return res.status(200).json({
       success: true,
       count: students.length,
-      students
+      students,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error occurred while fetching students",
-      error: error.message
+      error: error.message,
+    });
+  }
+}
+
+async function getStudentById(req, res) {
+  try {
+    const staffId = req.Staff;
+    const {id} = req.params
+    const Principal = await principal.findById(staffId);
+    if (!Principal) {
+      const Teacher = await teacher.findById(staffId)
+      if(!Teacher){
+        return res.status(404).json({
+          success: false,
+          message: "Principal not found",
+        });
+      }
+    }
+
+    const student = await Student.findById(id)
+
+    if(!student){
+      return res.status(400).json({
+        success:false,
+        message:"student not found"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      student,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching student",
+      error: error.message,
     });
   }
 }
@@ -878,7 +952,7 @@ async function getAllStudentByClass(req, res) {
     if (!Principal) {
       return res.status(404).json({
         success: false,
-        message: "Principal not found"
+        message: "Principal not found",
       });
     }
 
@@ -887,31 +961,29 @@ async function getAllStudentByClass(req, res) {
     if (!findClass) {
       return res.status(404).json({
         success: false,
-        message: "Class not found"
+        message: "Class not found",
       });
     }
 
     // Get all students for this class
-    const students = await Student.find({ 
+    const students = await Student.find({
       school: Principal.school,
-      classId: classId 
+      classId: classId,
     });
 
     return res.status(200).json({
       success: true,
       count: students.length,
-      students
+      students,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error occurred while fetching students by class",
-      error: error.message
+      error: error.message,
     });
   }
 }
-
 
 module.exports = {
   registerPrincipal,
@@ -927,5 +999,6 @@ module.exports = {
   updateStudent,
   deleteStudent,
   getAllStudents,
-  getAllStudentByClass
-}
+  getAllStudentByClass,
+  getStudentById
+};

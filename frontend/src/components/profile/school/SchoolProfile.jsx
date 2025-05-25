@@ -8,6 +8,7 @@ import _ from "lodash";
 import AdvancedEducationSpinner from "../../Spinner";
 import WelcomeAnimation from "../../Animaton";
 import { FiUpload, FiSave, FiEdit2, FiGlobe, FiMail, FiPhone, FiHome, FiCalendar } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 function SchoolProfile() {
   const principalId = useSelector((state) => state.principal._id);
@@ -28,6 +29,7 @@ function SchoolProfile() {
   } = useSelector((state) => state.school);
 
   const dispatch = useDispatch();
+  const Navigate = useNavigate();
 
   const [profile, setProfile] = useState({
     logo: logo || "",
@@ -139,6 +141,7 @@ function SchoolProfile() {
       dispatch(setSchool(response.data.school));
       toast.success(response.data.message);
       setLoading(false);
+      Navigate('/all-teachers')
     } else if (response.status === 400) {
       setLoading(false);
       toast.error(response.data.details[0]);
@@ -171,7 +174,7 @@ function SchoolProfile() {
   }
 
   return (
-    <div className="bg-gray-900 min-h-screen">
+    <div className="bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')] min-h-screen">
       <ToastContainer position="top-right" autoClose={5000} theme="dark" />
       <Header />
       

@@ -3,15 +3,17 @@ import { useParams } from "react-router-dom";
 import Header from "../../dashboard/Header";
 import { getTeacherById } from "../../../api/teacher";
 import { useTable, usePagination, useSortBy } from "react-table";
-import { FaUserCircle } from "react-icons/fa"; // Profile Icon
+import { FaUserCircle, FaFilePdf, FaMoneyBillWave, FaCalendarAlt, FaChartPie } from "react-icons/fa";
 import { IoChevronBackCircleSharp } from "react-icons/io5";
 import { jsPDF } from "jspdf";
 import AdvancedEducationSpinner from "../../Spinner";
+import { FiClock, FiDollarSign, FiCalendar, FiUserCheck, FiUserX } from "react-icons/fi";
 
 function TeacherDetail() {
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("attendance");
   const [attendanceData, setAttendanceData] = useState([
     { date: "2025-01-01", status: "Present" },
     { date: "2025-01-02", status: "Absent" },
@@ -25,8 +27,11 @@ function TeacherDetail() {
     basicSalary: 30000,
     bonus: 5000,
     deductions: 2000,
-    netSalary: 0,
+    netSalary: 33000,
+    isPaid: true,
+    paymentDate: "2025-01-31"
   });
+
   const salaryHistory = [
     {
       date: "2024-01-15",
@@ -42,7 +47,20 @@ function TeacherDetail() {
       deductions: 2500,
       netSalary: 54000,
     },
-    // Add more historical data as needed
+    {
+      date: "2024-03-15",
+      basicSalary: 50000,
+      bonus: 4000,
+      deductions: 1500,
+      netSalary: 52500,
+    },
+    {
+      date: "2024-04-15",
+      basicSalary: 50000,
+      bonus: 7000,
+      deductions: 3000,
+      netSalary: 54000,
+    },
   ];
 
   const { id } = useParams();
@@ -69,14 +87,6 @@ function TeacherDetail() {
     fetchTeacherData();
   }, [id]);
 
-  // Calculate net salary
-  useEffect(() => {
-    setSalaryStatus((prevState) => ({
-      ...prevState,
-      netSalary: prevState.basicSalary + prevState.bonus - prevState.deductions,
-    }));
-  }, [salaryStatus.basicSalary, salaryStatus.bonus, salaryStatus.deductions]);
-
   const columns = React.useMemo(
     () => [
       {
@@ -99,16 +109,7 @@ function TeacherDetail() {
     headerGroups,
     rows,
     prepareRow,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    gotoPage,
-    pageCount,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = useTable({ columns, data: attendanceData }, useSortBy, usePagination);
+  } = useTable({ columns, data: attendanceData }, useSortBy);
 
   const downloadPDF = () => {
     const doc = new jsPDF();
@@ -149,276 +150,317 @@ function TeacherDetail() {
     return <p className="text-center text-red-500">{error}</p>;
   }
 
+  // Calculate attendance stats
+  const attendanceStats = {
+    present: attendanceData.filter(item => item.status === "Present").length,
+    absent: attendanceData.filter(item => item.status === "Absent").length,
+    leave: attendanceData.filter(item => item.status === "Leave").length,
+    total: attendanceData.length
+  };
+
   return (
-    <div className="bg-gradient-to-r from-blue-300 via-blue-100 to-blue-300 min-h-screen">
+    <div className="bg-gradient-to-br mt-16 from-blue-50 to-indigo-100 min-h-screen">
       <Header />
       {loading ? (
-        <div className="flex items-center justify-center h-full w-full mt-[20%]">
+        <div className="flex items-center justify-center h-screen w-full">
           <AdvancedEducationSpinner />
         </div>
       ) : (
-        <div className="container pt-24 mx-auto p-8">
-          <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
-            {/* Profile Details Section */}
-            <div className="md:w-1/3 relative bg-white p-6 rounded-xl shadow-2xl border-2 border-gray-300">
-              <h1
-                onClick={() => window.history.back()}
-                className="absolute top-2 cursor-pointer text-4xl text-gray-400 left-2"
-              >
-                <IoChevronBackCircleSharp />
-              </h1>
-              <h1 className="text-3xl font-semibold text-black mb-4 text-center">
-                Teacher Details
-              </h1>
-              <div className="flex flex-col gap-2 items-center mb-8">
-                <FaUserCircle className="text-gray-400 text-7xl mb-4" />
-                <div className="bg-white p-4 rounded-lg shadow-lg w-full">
-                  <h2 className="text-4xl text-center font-extrabold text-gray-700 mb-3">
-                    {teacher?.fullName.firstName} {teacher?.fullName.lastName}
-                  </h2>
+        <div className="container mx-auto px-4 py-6">
+          {/* Back Button */}
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4 transition-colors"
+          >
+            <IoChevronBackCircleSharp className="mr-2 text-2xl" />
+            <span className="font-medium">Back to Teachers</span>
+          </button>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <p className="text-lg text-gray-700 mb-2">
-                      Role:{" "}
-                      <span className="text-indigo-600 font-semibold">
-                        {teacher?.role}
-                      </span>
+          {/* Main Content */}
+          <div className="flex justify-center items-center flex-col lg:flex-row gap-6">
+            {/* Profile Card */}
+            <div className="w-full lg:w-1/3">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                {/* Profile Header */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center">
+                  <div className="flex justify-center">
+                    <FaUserCircle className="text-white text-7xl" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-white mt-4">
+                    {teacher?.fullName.firstName} {teacher?.fullName.lastName}
+                  </h1>
+                  <p className="text-indigo-100">{teacher?.designation}</p>
+                </div>
+
+                {/* Profile Details */}
+                <div className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <div className="bg-indigo-100 p-3 rounded-full mr-4">
+                        <FiClock className="text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Joining Date</p>
+                        <p className="font-medium">
+                          {new Date(teacher?.joiningDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="bg-indigo-100 p-3 rounded-full mr-4">
+                        <FiDollarSign className="text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Salary</p>
+                        <p className="font-medium">₹{teacher?.salary}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="bg-indigo-100 p-3 rounded-full mr-4">
+                        <FiCalendar className="text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Birthdate</p>
+                        <p className="font-medium">
+                          {new Date(teacher?.birthDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <div className="bg-indigo-100 p-3 rounded-full mr-4">
+                        <FiUserCheck className="text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Gender</p>
+                        <p className="font-medium">{teacher?.gender}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="my-6 border-gray-200" />
+
+                  {/* Contact Info */}
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800">Contact Information</h3>
+                  <div className="space-y-3">
+                    <p className="flex items-center">
+                      <span className="text-gray-500 w-24">Email:</span>
+                      <span className="font-medium">{teacher?.email}</span>
                     </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Designation:{" "}
-                      <span className="text-indigo-600 font-semibold">
-                        {teacher?.designation}
-                      </span>
+                    <p className="flex items-center">
+                      <span className="text-gray-500 w-24">Phone:</span>
+                      <span className="font-medium">+91 {teacher?.contactNumber}</span>
                     </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Email:{" "}
-                      <span className="text-indigo-600">{teacher?.email}</span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Contact:{" +91"}
-                      <span className="text-indigo-600">
-                        {teacher?.contactNumber}
-                      </span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Father's Name:{" "}
-                      <span className="text-indigo-600">
-                        {teacher?.fatherName}
-                      </span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Education:{" "}
-                      <span className="text-indigo-600">
-                        {teacher?.education}
-                      </span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Gender:{" "}
-                      <span className="text-indigo-600">{teacher?.gender}</span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Birthdate:{" "}
-                      <span className="text-indigo-600">
-                        {new Date(teacher?.birthDate).toLocaleDateString()}
-                      </span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Joining Date:{" "}
-                      <span className="text-indigo-600">
-                        {new Date(teacher?.joiningDate).toLocaleDateString()}
-                      </span>
-                    </p>
-                    <p className="text-lg text-gray-700 mb-2">
-                      Salary: ₹
-                      <span className="text-indigo-600">{teacher?.salary}</span>
-                    </p>
-                    {/* Address Details */}
-                    <p className="text-lg text-gray-700 mb-2">
-                      Address:{" "}
-                      <span className="text-indigo-600">
-                        {teacher?.address}
-                      </span>
+                    <p className="flex items-center">
+                      <span className="text-gray-500 w-24">Address:</span>
+                      <span className="font-medium">{teacher?.address}</span>
                     </p>
                   </div>
+
+                  <button
+                    onClick={downloadPDF}
+                    className="mt-6 w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow hover:shadow-md transition-all"
+                  >
+                    <FaFilePdf className="mr-2" />
+                    Download Profile
+                  </button>
                 </div>
               </div>
-
-              {/* Button to download PDF */}
-              <button
-                onClick={downloadPDF}
-                className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700"
-              >
-                Download Profile as PDF
-              </button>
             </div>
 
-            {/* Salary & Attendance Section */}
-            <div className="md:w-2/3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-lg shadow-2xl border border-gray-200">
-              <h3 className="text-3xl font-semibold text-white mb-6 text-center">
-                Salary & Attendance
-              </h3>
+            {/* Right Content */}
+            <div className="w-full lg:w-2/3">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                {/* Tabs */}
+                <div className="flex border-b border-gray-200">
+                  <button
+                    className={`px-6 py-3 font-medium text-sm flex items-center ${activeTab === "attendance" ? "text-indigo-600 border-b-2 border-indigo-600" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("attendance")}
+                  >
+                    <FaCalendarAlt className="mr-2" />
+                    Attendance
+                  </button>
+                  <button
+                    className={`px-6 py-3 font-medium text-sm flex items-center ${activeTab === "salary" ? "text-indigo-600 border-b-2 border-indigo-600" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("salary")}
+                  >
+                    <FaMoneyBillWave className="mr-2" />
+                    Salary
+                  </button>
+                  <button
+                    className={`px-6 py-3 font-medium text-sm flex items-center ${activeTab === "stats" ? "text-indigo-600 border-b-2 border-indigo-600" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("stats")}
+                  >
+                    <FaChartPie className="mr-2" />
+                    Statistics
+                  </button>
+                </div>
 
-              {/* Salary Status Section */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
-                <div className="text-center bg-blue-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-blue-700">Basic Salary</h4>
-                  <p className="text-3xl text-blue-600">
-                    ₹{salaryStatus.basicSalary}
-                  </p>
-                </div>
-                <div className="text-center bg-green-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-green-700">Bonus</h4>
-                  <p className="text-3xl text-green-600">
-                    ₹{salaryStatus.bonus}
-                  </p>
-                </div>
-                <div className="text-center bg-yellow-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-yellow-700">Deductions</h4>
-                  <p className="text-3xl text-yellow-600">
-                    ₹{salaryStatus.deductions}
-                  </p>
-                </div>
-                <div className="text-center bg-red-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-red-700">Net Salary</h4>
-                  <p className="text-3xl text-red-600">
-                    ₹{salaryStatus.netSalary}
-                  </p>
-                </div>
-              </div>
+                {/* Tab Content */}
+                <div className="p-6">
+                  {activeTab === "attendance" && (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-4 text-gray-800">Attendance History</h3>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {attendanceData.map((item, index) => (
+                              <tr key={index}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {new Date(item.date).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    item.status === "Present" 
+                                      ? "bg-green-100 text-green-800" 
+                                      : item.status === "Leave" 
+                                        ? "bg-yellow-100 text-yellow-800" 
+                                        : "bg-red-100 text-red-800"
+                                  }`}>
+                                    {item.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Salary Payment Status */}
-              <div className="flex items-center justify-between bg-indigo-100 p-4 rounded-lg shadow-md mb-8">
-                <div>
-                  <h4 className="font-semibold text-indigo-700 text-xl">
-                    Salary Status
-                  </h4>
-                  <p className="text-lg text-indigo-600">
-                    {salaryStatus.isPaid ? "Paid" : "Not Paid"}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-indigo-700 text-xl">
-                    Salary Date
-                  </h4>
-                  <p className="text-lg text-indigo-600">
-                    {new Date(salaryStatus.paymentDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+                  {activeTab === "salary" && (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-6 text-gray-800">Salary Information</h3>
+                      
+                      {/* Current Salary */}
+                      <div className="bg-indigo-50 rounded-lg p-6 mb-8">
+                        <h4 className="text-lg font-medium text-indigo-800 mb-4">Current Salary Status</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="bg-white p-4 rounded-lg shadow-sm">
+                            <p className="text-sm text-gray-500">Basic Salary</p>
+                            <p className="text-2xl font-bold text-indigo-600">₹{salaryStatus.basicSalary}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg shadow-sm">
+                            <p className="text-sm text-gray-500">Bonus</p>
+                            <p className="text-2xl font-bold text-green-600">+₹{salaryStatus.bonus}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg shadow-sm">
+                            <p className="text-sm text-gray-500">Deductions</p>
+                            <p className="text-2xl font-bold text-red-600">-₹{salaryStatus.deductions}</p>
+                          </div>
+                          <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-200">
+                            <p className="text-sm text-gray-500">Net Salary</p>
+                            <p className="text-2xl font-bold text-indigo-700">₹{salaryStatus.netSalary}</p>
+                          </div>
+                        </div>
+                        <div className={`mt-4 p-3 rounded-lg ${salaryStatus.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          <p className="font-medium">
+                            {salaryStatus.isPaid 
+                              ? `Salary paid on ${new Date(salaryStatus.paymentDate).toLocaleDateString()}`
+                              : "Salary pending for this month"}
+                          </p>
+                        </div>
+                      </div>
 
-              {/* Salary History Section */}
-              <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                <h4 className="text-xl font-semibold text-gray-800 mb-4">
-                  Salary History
-                </h4>
-                <table className="table-auto w-full text-sm border-collapse mb-6">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Date
-                      </th>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Basic Salary
-                      </th>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Bonus
-                      </th>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Deductions
-                      </th>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Net Salary
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {salaryHistory.map((historyItem, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="px-4 py-2">
-                          {new Date(historyItem.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-2">
-                          ₹{historyItem.basicSalary}
-                        </td>
-                        <td className="px-4 py-2">₹{historyItem.bonus}</td>
-                        <td className="px-4 py-2">₹{historyItem.deductions}</td>
-                        <td className="px-4 py-2">₹{historyItem.netSalary}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                      {/* Salary History */}
+                      <h4 className="text-lg font-medium text-gray-800 mb-4">Salary History</h4>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Basic</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bonus</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deductions</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Salary</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {salaryHistory.map((item, index) => (
+                              <tr key={index}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  {new Date(item.date).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">₹{item.basicSalary}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-green-600">+₹{item.bonus}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-red-600">-₹{item.deductions}</td>
+                                <td className="px-6 py-4 whitespace-nowrap font-semibold">₹{item.netSalary}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Attendance Section */}
-              <div className="grid grid-cols-3 gap-6 mb-8">
-                <div className="text-center bg-green-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-green-700">Presents</h4>
-                  <p className="text-3xl text-green-600">
-                    {
-                      attendanceData.filter((item) => item.status === "Present")
-                        .length
-                    }
-                  </p>
-                </div>
-                <div className="text-center bg-yellow-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-yellow-700">Leaves</h4>
-                  <p className="text-3xl text-yellow-600">
-                    {
-                      attendanceData.filter((item) => item.status === "Leave")
-                        .length
-                    }
-                  </p>
-                </div>
-                <div className="text-center bg-red-100 p-6 rounded-lg shadow-lg">
-                  <h4 className="font-semibold text-red-700">Absents</h4>
-                  <p className="text-3xl text-red-600">
-                    {
-                      attendanceData.filter((item) => item.status === "Absent")
-                        .length
-                    }
-                  </p>
-                </div>
-              </div>
+                  {activeTab === "stats" && (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-6 text-gray-800">Attendance Statistics</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-green-500">
+                          <div className="flex items-center">
+                            <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                              <FiUserCheck size={24} />
+                            </div>
+                            <div>
+                              <p className="text-gray-500">Present</p>
+                              <p className="text-3xl font-bold">{attendanceStats.present}</p>
+                              <p className="text-sm text-gray-500">
+                                {((attendanceStats.present / attendanceStats.total) * 100).toFixed(1)}% of total
+                              </p>
+                            </div>
+                          </div>
+                        </div>
 
-              {/* Attendance History Table */}
-              <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h4 className="text-xl font-semibold text-gray-800 mb-4">
-                  Attendance History
-                </h4>
-                <table className="table-auto w-full text-sm border-collapse mb-6">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-indigo-600">
-                        Date
-                      </th>
-                      <th className="px-4 py-2 text-center text-indigo-600">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {attendanceData.map((attendanceItem, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="px-4 py-2">
-                          {new Date(attendanceItem.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <span
-                            className={`px-2 py-1 rounded-full text-white ${
-                              attendanceItem.status === "Present"
-                                ? "bg-green-500"
-                                : attendanceItem.status === "Leave"
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            }`}
-                          >
-                            {attendanceItem.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-yellow-500">
+                          <div className="flex items-center">
+                            <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                              <FiCalendar size={24} />
+                            </div>
+                            <div>
+                              <p className="text-gray-500">Leave</p>
+                              <p className="text-3xl font-bold">{attendanceStats.leave}</p>
+                              <p className="text-sm text-gray-500">
+                                {((attendanceStats.leave / attendanceStats.total) * 100).toFixed(1)}% of total
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-red-500">
+                          <div className="flex items-center">
+                            <div className="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+                              <FiUserX size={24} />
+                            </div>
+                            <div>
+                              <p className="text-gray-500">Absent</p>
+                              <p className="text-3xl font-bold">{attendanceStats.absent}</p>
+                              <p className="text-sm text-gray-500">
+                                {((attendanceStats.absent / attendanceStats.total) * 100).toFixed(1)}% of total
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-6 rounded-lg shadow-sm">
+                        <h4 className="text-lg font-medium text-gray-800 mb-4">Attendance Overview</h4>
+                        <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                          <p className="text-gray-400">Attendance chart would be displayed here</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

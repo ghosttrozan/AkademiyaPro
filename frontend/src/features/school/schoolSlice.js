@@ -15,7 +15,7 @@ const initialState = {
   academicYears: [],
   tagLine: 'AcademyPro - Best School Management Software',
   schoolEmail: 'example@gmail.com',
-  schoolWebsite: 'www.example.com',
+  schoolWebsite: 'https://www.example.com',
   logo: '',
   createdAt: null, // Set to null as it's a date/time field
 };
@@ -34,12 +34,16 @@ const schoolSlice = createSlice({
         establishedYear,
         schoolType,
         principal,
+        students,
+        teachers,
+        classes,
+        academicYears,
         tagLine,
         schoolEmail,
         schoolWebsite,
         logo,
       } = action.payload;
-
+      console.log(action.payload)
       // Assign payload values to the state
       state._id = _id ?? state._id;
       state.name = name ?? state.name;
@@ -52,6 +56,10 @@ const schoolSlice = createSlice({
       state.schoolEmail = schoolEmail ?? state.schoolEmail;
       state.schoolWebsite = schoolWebsite ?? state.schoolWebsite;
       state.logo = logo ?? state.logo;
+      state.students = students?? state.students;
+      state.teachers = teachers?? state.teachers;
+      state.classes = classes?? state.classes;
+      state.academicYears = academicYears?? state.academicYears;
     },
     // Add more actions as needed
   },

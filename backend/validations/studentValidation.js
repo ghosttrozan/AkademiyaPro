@@ -10,6 +10,7 @@ const studentValidationSchema = Joi.object({
     'date.max': 'Date of birth must be in the past'
   }),
   classId: Joi.string().required(),  // Assuming it's the ObjectId as a string
+  className: Joi.string().required(),
   school: Joi.string().optional(),  // Assuming it's the ObjectId as a string
   contactInfo: Joi.object({
     phone: Joi.string().required(),

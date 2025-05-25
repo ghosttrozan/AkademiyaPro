@@ -23,6 +23,9 @@ import UpdateTeacher from "./components/profile/teacher/UpdateTeacher";
 import AdvancedEducationSpinner from "./components/Spinner";
 import AllClasses from "./components/profile/class/AllClasses";
 import RegisterClass from "./components/profile/class/RegisterClass";
+import ClassDetails from "./components/profile/class/ClassDetail";
+import StudentsManagement from "./components/profile/students/AllStudents";
+import StudentDetails from "./components/profile/students/StudentDetail";
 
 
 function App() {
@@ -38,27 +41,46 @@ function AppRoutes() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
 
-  // useEffect(() => {
-  //   const fetchSchoolData = async () => {
-  //     try {
-  //       const schoolData = await getSchool();
-  //       if (!schoolData) {
-  //         navigate("/school");
-  //         return;
-  //       }
-  //       // Update School Data
-  //       console.log("School Data:", schoolData);
-  //       dispatch(setSchool(schoolData.school));
-  //       toast.success("School Get Successfully!");
-  //       navigate('/dashboard');
-  //     } catch (error) {
-  //       console.error("Error fetching school data:", error);
-  //       toast.error("Error fetching school data.");
-  //     }
-  //   };
 
-  //   fetchPrincipalData();
-  // }, [token]);
+
+  useEffect(() => {
+    
+    const fetchPrincipalData = async () => {
+      try {
+        const principal = await verifyPrincipal(token)
+        if(!principal){
+          toast.error('Session Expired, Please Login Again')
+          navigate('/')
+          return;
+        }
+        dispatch(setPrincipal(principal))
+        fetchSchoolData()
+      } catch (error) {
+        console.error("Error fetching principal data:", error);
+        toast.error("Error fetching principal data.");
+      }
+    }
+
+    const fetchSchoolData = async () => {
+      try {
+        const schoolData = await getSchool();
+        if (!schoolData) {
+          navigate("/school");
+          return;
+        }
+        // Update School Data
+        console.log("School Data:", schoolData);
+        dispatch(setSchool(schoolData.school));
+        toast.success("School Get Successfully!");
+        navigate('/dashboard');
+      } catch (error) {
+        console.error("Error fetching school data:", error);
+        toast.error("Error fetching school data.");
+      }
+    };
+
+    fetchPrincipalData();
+  }, [token]);
 
 
   return (
@@ -74,6 +96,9 @@ function AppRoutes() {
       <Route path="/update-teacher/:id" element={<UpdateTeacher/>} />
       <Route path="/all-classes" element={<AllClasses/>} />
       <Route path="/register-class" element={<RegisterClass/>} />
+      <Route path="/class-details/:id" element={<ClassDetails/>} />
+      <Route path="/students" element={<StudentsManagement/>} />
+      <Route path="/student/:studentId" element={<StudentDetails/>} />
     </Routes>
   );
 }

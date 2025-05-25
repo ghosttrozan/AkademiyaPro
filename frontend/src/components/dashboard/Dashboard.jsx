@@ -15,44 +15,101 @@ import { setPrincipal } from "../../features/principal/principalSlice";
 import { useDispatch } from "react-redux";
 import { setSchool } from "../../features/school/schoolSlice";
 import AdvancedEducationSpinner from "../Spinner";
+import Footer from "./Footer";
 
 function Dashboard() {
-
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 500); 
+    const token = localStorage.getItem("token")
+    if(!token){
+      navigate("/signin");
+    }
+    const fetchData = async () => {
+      try {
+        const principal = await verifyPrincipal();
+        if(!principal){
+          navigate('/signin')
+        }
+        dispatch(setPrincipal(principal));
+        
+        const {school} = await getSchool();
+        console.log(school)
+        dispatch(setSchool(school));
+        
+        setLoading(false);
+      } catch (error) {
+        toast.error("Session expired. Please login again.");
+        navigate("/signin");
+      }
+    };
 
-    // Cleanup the timeout when the component unmounts
-    return () => clearTimeout(timer);
-  }, []);
+    fetchData();
+  }, [dispatch, navigate]);
 
-  if(loading){
-    return <div className="flex items-center justify-center h-full"><AdvancedEducationSpinner /></div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <AdvancedEducationSpinner />
+      </div>
+    );
   }
 
-
   return (
-    <div>
-      <ToastContainer />
+    <div className="bg-gray-50 min-h-screen bg-[url('https://pro.eskooly.com/assets/images/banner/banner-bg-3.jpg')]">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Header />
-      <NavData />
-      <div className="relative px-6 justify-center flex w-full items-center justify-between mb-4">
-        <ExpenseIncomeChart />
-        <EstimatedFeeCard />
-      </div>
-      <div className="relative py-2 w-full">
-        <div className="absolute bottom-[-20px] w-full h-[2px] bg-gray-300"></div>
-      </div>
-      <div className="flex mt-4 justify-center items-center">
-        <ClassWiseStudentsChart />
-        <AttendancePercentage />
-      </div>
-      <div className="flex px-4 mb-4 items-center justify-between ">
-        <AttendanceTracker />
-        <AcademicCalendar />
+      
+      <div className="mx-auto px-2 sm:px-6 lg:px-8 py-6">
+        {/* Top Cards Section */}
+        <NavData />
+        
+        {/* Financial Overview Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <ExpenseIncomeChart />
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <EstimatedFeeCard />
+          </div>
+        </div>
+        
+        {/* Divider */}
+        <div className="relative my-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200"></div>
+          </div>
+          <div className="relative flex justify-center">
+            <span className="px-3 bg-gray-50 text-sm text-gray-500">
+              School Analytics
+            </span>
+          </div>
+        </div>
+        
+        {/* Student Data Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <ClassWiseStudentsChart />
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <AttendancePercentage />
+          </div>
+        </div>
+        
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <AttendanceTracker />
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <AcademicCalendar />
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <Footer />
+          </div>
       </div>
     </div>
   );

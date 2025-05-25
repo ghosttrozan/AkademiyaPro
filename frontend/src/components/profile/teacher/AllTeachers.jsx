@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import Header from "../../dashboard/Header";
 import { deleteTeacher, getAllTeacher, registerTeacher } from "../../../api/teacher";
 import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AdvancedEducationSpinner from "../../Spinner";
 
 function EmployeeList() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState([]);
@@ -150,7 +151,7 @@ function EmployeeList() {
     <div>
       <ToastContainer />
       {loading ? (
-        <div className="flex items-center justify-center h-full w-full mt-[20%]">
+        <div className="flex items-center justify-center h-full w-full">
           <AdvancedEducationSpinner />
         </div>
       ) : (

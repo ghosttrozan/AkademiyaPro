@@ -22,6 +22,7 @@ import Header from "../../dashboard/Header";
 import { getAllStudents, registerStudent } from "../../../api/students";
 import { getAllClasses } from "../../../api/class";
 import { ToastContainer, toast } from "react-toastify";
+import AdvancedEducationSpinner from "../../Spinner";
 
 const StudentsManagement = () => {
   const navigate = useNavigate();
@@ -231,7 +232,9 @@ const StudentsManagement = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <AdvancedEducationSpinner />
+      </div>
     );
   }
 

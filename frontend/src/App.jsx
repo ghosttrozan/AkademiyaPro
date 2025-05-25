@@ -26,6 +26,7 @@ import RegisterClass from "./components/profile/class/RegisterClass";
 import ClassDetails from "./components/profile/class/ClassDetail";
 import StudentsManagement from "./components/profile/students/AllStudents";
 import StudentDetails from "./components/profile/students/StudentDetail";
+import UnderConstruction from "./components/UnderConstruction";
 
 
 function App() {
@@ -99,6 +100,7 @@ function AppRoutes() {
       <Route path="/class-details/:id" element={<ClassDetails/>} />
       <Route path="/students" element={<StudentsManagement/>} />
       <Route path="/student/:studentId" element={<StudentDetails/>} />
+      <Route path="*" element={<UnderConstruction/>} />
     </Routes>
   );
 }
